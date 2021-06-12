@@ -57,12 +57,12 @@ export default function App() {
             component={ItemAddComponent}
             options={{title: 'Add an Item'}}
           />
-          {/* <Stack.Screen
+          <Stack.Screen
             name="PriceAdd"
             component={PriceAddComponent}
             options={{title: 'Add a Price'}}
           />
-          Expo currently not supporting this: https://expo.canny.io/feature-requests/p/support-react-native-date-picker */}
+          {/*Expo currently not supporting this: https://expo.canny.io/feature-requests/p/support-react-native-date-picker */}
           <Stack.Screen 
             name="PriceView"
             component={PriceViewComponent}

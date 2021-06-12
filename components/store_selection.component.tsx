@@ -6,6 +6,7 @@ import { User } from '../models/user.model';
 import Toast from 'react-native-simple-toast';
 import { getAllStores, getStoresWithItemsByUser } from '../utilities/api';
 import { createErrorAlert } from '../utilities/utils';
+import { store_images } from '../utilities/store_images';
 
 type Props = {
     navigation: StoreSelectionScreenNavigationProp,
@@ -45,6 +46,8 @@ const StoreSelectionComponent = ({ route, navigation }: Props) => {
     const [isEnabled, setIsEnabled] = useState<boolean>(false);
     const [currentUserId, setCurrentUserId] = useState<number>(0);
 
+    const walmartPicture: string = '../assets/walmart.png';
+
     const Store = ({ store }: IStoreProps): JSX.Element => {
         return (
             <View style={styles.storesRow}>
@@ -52,9 +55,7 @@ const StoreSelectionComponent = ({ route, navigation }: Props) => {
                 <TouchableWithoutFeedback onPress= {() => onStorePress(store)}>
                     <View style={styles.storesRow}>
                         <Image 
-                        source={
-                            require('../assets/unknown.png')
-                        } 
+                        source={requireStorePicture(store)}
                         accessibilityLabel={store.name}
                         />
                         <Text style={styles.stores}> {store.name} </Text>
@@ -62,6 +63,16 @@ const StoreSelectionComponent = ({ route, navigation }: Props) => {
                 </TouchableWithoutFeedback>
             </View>
         )
+    }
+
+    const requireStorePicture = (store: IStore) => {
+        if (store.pictureFileName != null){
+            switch(store.name){
+                case "Walmart":
+                    return require('../assets/walmart.png');
+            }
+        }
+        return require('../assets/unknown.png');
     }
 
     const onStorePress = (store: IStore) => {
