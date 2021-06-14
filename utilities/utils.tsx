@@ -1,6 +1,6 @@
 import React from "react";
 
-import { StyleProp, View, ViewStyle, Button, NativeSyntheticEvent, NativeTouchEvent, Alert } from "react-native";
+import { StyleProp, View, ViewStyle, Button, NativeSyntheticEvent, NativeTouchEvent, Alert, TouchableHighlight, Text } from "react-native";
 
 import IStore from "../models/store.model";
 
@@ -52,20 +52,6 @@ export const getStoreIdByName = (stores: IStore[], store_name: string): number =
     }
 
     return store_id;
-}
-
-export class StyledButton extends React.Component<IStyledButtonProps> {
-    constructor(props: IStyledButtonProps){
-        super(props)
-    }
-
-    render(): JSX.Element {
-        return (
-            <View style={this.props.styles}>
-                <Button color="#85bb65" title={this.props.title} onPress={this.props.onPress} disabled={this.props.disabled}/>
-            </View>
-        )
-    }
 }
 
 export const createErrorAlert = (message: string) => {
@@ -121,57 +107,6 @@ export const formatString = (type: string, toFormat: any, stores?: IStore[]): st
 
 export const convertPriceStringToNumber = (price_string: string): number => {
     return Number(price_string.replace(',', ''));
-}
-
-// export class StorePickList extends React.Component<IStorePickListProps> {
-//     constructor(props: IStorePickListProps){
-//         super(props)
-//     }
-
-//     render(): JSX.Element {
-//         return (
-//             <Picker
-//                 selectedValue={this.props.value}
-//                 style={{height: 50, width: 150}}
-//                 onValueChange={(itemValue, itemIndex) => {
-//                     this.props.value = itemValue.toString();
-//                 }}
-//             >
-//                 <Picker.Item label='None' value='none' />
-//                 {this.props.stores.map((prop: IStore, key: number) => {
-//                     return (
-//                         <Picker.Item label={prop.name} value={prop.name} key={key} />
-//                     );
-//                 })}
-//             </Picker>
-//         )
-//     }
-// }
-
-// // const StorePicklist = (): JSX.Element => {
-// //     return (
-//         <Picker
-//             selectedValue={selectedStore}
-//             style={{height: 50, width: 150}}
-//             onValueChange={(itemValue, itemIndex) => {
-//                 setSelectedStore(itemValue.toString());
-//             }}
-//         >
-//             <Picker.Item label='None' value='none' />
-//             {stores.map((prop: IStore, key: number) => {
-//                 return (
-//                     <Picker.Item label={prop.name} value={prop.name} key={key} />
-//                 );
-//             })}
-//         </Picker>
-// //     );
-// // }
-
-export interface IStyledButtonProps {
-    styles: StyleProp<ViewStyle>,
-    title: string,
-    onPress: (ev: NativeSyntheticEvent<NativeTouchEvent>) => void,
-    disabled?: boolean | undefined
 }
 
 export interface IStorePickListProps {

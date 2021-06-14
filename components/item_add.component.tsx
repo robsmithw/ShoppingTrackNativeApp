@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
-import { View, Text, Button } from "react-native";
+import { View, Text, Button, StyleSheet } from "react-native";
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import { ItemAddScreenNavigationProp, ItemAddScreenRouteProp, redirectToHome } from '../models/navigation.model';
 import { addItem, getAllStores, getItemsForUser } from '../utilities/api';
@@ -8,6 +8,18 @@ import IStore from '../models/store.model';
 import IItem, { getDefaultItem } from '../models/item.model';
 import { createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utilities/utils';
 import { StorePickList } from './store_pick_list.component';
+import { StyledButton } from './styled_button';
+
+const styles = StyleSheet.create({
+    btn: {
+        height: 50,
+        borderRadius: 20,
+        backgroundColor: '#85bb65', 
+        padding: 10,
+        fontSize: 20,
+        fontWeight: 'bold'
+    }
+});
 
 type Props = {
     navigation: ItemAddScreenNavigationProp,
@@ -26,26 +38,6 @@ const ItemAddComponent = ({ route, navigation }: Props) => {
     const [selectedStoreId, setSelectedStoreId] = useState<number>(0);
 
     let errorMessage: string = '';
-
-    // const StorePicklist = (): JSX.Element => {
-    //     return (
-    //         <Picker
-    //             selectedValue={selectedStore}
-    //             style={{height: 50, width: 150}}
-    //             onValueChange={(itemValue, itemIndex) => {
-    //                 setSelectedStore(itemValue.toString());
-    //                 setSelectedStoreId(getStoreIdByName(stores, itemValue.toString()));
-    //             }}
-    //         >
-    //             <Picker.Item label='None' value='none' />
-    //             {stores.map((prop: IStore, key: number) => {
-    //                 return (
-    //                     <Picker.Item label={prop.name} value={prop.name} key={key} />
-    //                 );
-    //             })}
-    //         </Picker>
-    //     );
-    // }
 
     const renderStoresAndSetDefault = (store_id: number | undefined) => {
         getAllStores()
@@ -135,7 +127,11 @@ const ItemAddComponent = ({ route, navigation }: Props) => {
                     setSelectedStoreId(getStoreIdByName(stores, itemValue.toString()));
                 }}
             />
-            <Button title='Add Item' onPress={ () => addItemAndRedirect()} />
+            <StyledButton 
+                styles={styles.btn}
+                title="Add Item"
+                onPress={() => addItemAndRedirect()  } 
+            />
         </View>
     );
 

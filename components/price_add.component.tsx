@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, Platform } from "react-native";
+import { View, Text, Button, StyleSheet, Platform, TouchableWithoutFeedback, Image } from "react-native";
 import { Picker } from '@react-native-picker/picker';
 // import DatePicker from 'react-native-date-picker'
 import DateTimePicker, { Event } from '@react-native-community/datetimepicker';
@@ -93,6 +93,17 @@ const PriceAddComponent = ({ route, navigation }: Props) => {
         showMode('time');
     };
 
+    const calenderDisplay = (): JSX.Element => {
+        return (
+            <TouchableWithoutFeedback onPress={() => setShow(true)}>
+                <Image 
+                    source={require('../assets/add.png')}
+                    accessibilityLabel={'Add Item'}
+                />
+            </TouchableWithoutFeedback>
+        )
+    }
+
     //Number(newPrice.replace(',', ''))
 
     useEffect( () => {
@@ -111,7 +122,7 @@ const PriceAddComponent = ({ route, navigation }: Props) => {
             Most recent price?
             */}
             <FloatingLabelInput
-                label={'Store with Price'}
+                label={'Select a store'}
                 value={selectedStore}
                 editable={false}
             />
@@ -124,13 +135,21 @@ const PriceAddComponent = ({ route, navigation }: Props) => {
                 keyboardType="numeric"
                 onChangeText={(val: string) => setNewPrice(val)}
             />
-            <DateTimePicker
-            testID="dateTimePicker"
-            value={dateOfPrice}
-            mode={mode}
-            display="default"
-            onChange={onChange}
+            <FloatingLabelInput
+                label={'Select the date of the price'}
+                value={dateOfPrice.toDateString()}
+                editable={false}
+                rightComponent={calenderDisplay()}
             />
+            {
+                show &&
+                <DateTimePicker
+                    value={dateOfPrice}
+                    mode={mode}
+                    display="default"
+                    onChange={onChange}
+                />
+            }
 
             <StyledButton styles={styles.navBtn} title='Add Price' onPress={ () => console.log("sumin")} />
             <StyledButton styles={styles.navBtn} title='Cancel' onPress={ () => console.log("sumin")} />

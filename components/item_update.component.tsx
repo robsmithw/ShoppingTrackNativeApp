@@ -6,7 +6,9 @@ import { ItemUpdateScreenNavigationProp, ItemUpdateScreenRouteProp, redirectToHo
 import IStore from '../models/store.model';
 import { User } from '../models/user.model';
 import { getAllStores, updateItem } from '../utilities/api';
-import { convertPriceStringToNumber, createErrorAlert, isUndefinedOrNull, StyledButton } from '../utilities/utils';
+import { convertPriceStringToNumber, createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utilities/utils';
+import { StorePickList } from './store_pick_list.component';
+import { StyledButton } from './styled_button';
 
 type Props = {
     navigation: ItemUpdateScreenNavigationProp,
@@ -15,7 +17,12 @@ type Props = {
 
 const styles = StyleSheet.create({
     btn: {
-        fontSize: 18, 
+        height: 50,
+        borderRadius: 20,
+        backgroundColor: '#85bb65', 
+        padding: 10,
+        fontSize: 20,
+        fontWeight: 'bold',
         margin: 5,
         marginBottom: 5
     }
@@ -29,11 +36,19 @@ const ItemUpdateComponent = ({ route, navigation }: Props) => {
     const [stores, setStores] = useState<IStore[]>([]);
     const [newItemName, setNewItemName] = useState<string>('');
     const [newPreviousPrice, setNewPreviousPrice] = useState<string>('');
+    const [selectedStore, setSelectedStore] = useState<string>('none');
+    const [selectedStoreId, setSelectedStoreId] = useState<number>(0);
 
-    const getStores = () => {
+    const getStores = (store_id: number | undefined) => {
         setStores([]);
         getAllStores()
-        .then((json: IStore[]) => setStores(json))
+        .then((json: IStore[]) => {
+            setStores(json);
+            if(!isUndefinedOrNull(store_id)){
+                setSelectedStoreId(Number(store_id));
+                setSelectedStore(getStoreNameById(json, Number(store_id)));
+            }    
+        })
         .catch((error) => {
             console.error(error);
             createErrorAlert(error);
@@ -45,6 +60,7 @@ const ItemUpdateComponent = ({ route, navigation }: Props) => {
         if (!isUndefinedOrNull(item) && item != undefined){
             item.name = newItemName;
             item.previous_Price = convertPriceStringToNumber(newPreviousPrice);
+            item.currentStoreId = selectedStoreId;
             updateItem(item)
             .then((json: IItem) => {
                 setCurrentItem(json);
@@ -64,7 +80,7 @@ const ItemUpdateComponent = ({ route, navigation }: Props) => {
         setCurrentItem(route.params.item);
         setNewItemName(route.params.item != null ? route.params.item.name : '');
         setNewPreviousPrice(route.params.item != null ? route.params.item.previous_Price.toString() : '');
-        getStores();
+        getStores(route.params.store_id);
     }, []);
 
     return (
@@ -81,6 +97,19 @@ const ItemUpdateComponent = ({ route, navigation }: Props) => {
                 currencyDivider="," 
                 keyboardType="numeric"
                 onChangeText={(val: string) => setNewPreviousPrice(val)}
+            />
+            <FloatingLabelInput
+                label={'Store with Price'}
+                value={selectedStore}
+                editable={false}
+            />
+            <StorePickList 
+                stores={stores}
+                selectedStore={selectedStore}
+                onStoreChanged={(itemValue, itemIndex) => {
+                    setSelectedStore(itemValue.toString());
+                    setSelectedStoreId(getStoreIdByName(stores, itemValue.toString()));
+                }}
             />
             <StyledButton 
                 styles={styles.btn}

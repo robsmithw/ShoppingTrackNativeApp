@@ -4,9 +4,10 @@ import { ItemDetailsScreenNavigationProp, ItemDetailsScreenRouteProp, redirectTo
 import { IPrice } from '../models/price.model';
 import IItem, { getDefaultItem } from '../models/item.model';
 import NumberFormat from 'react-number-format';
-import { createErrorAlert, formatString, isUndefinedOrNull, StyledButton } from '../utilities/utils';
+import { createErrorAlert, formatString, isUndefinedOrNull } from '../utilities/utils';
 import IStore from '../models/store.model';
 import { getAllStores, getAllPrices, deleteItem } from '../utilities/api';
+import { StyledButton } from './styled_button';
 
 type Props = {
     navigation: ItemDetailsScreenNavigationProp,
@@ -19,7 +20,12 @@ interface IPriceProps {
 
 const styles = StyleSheet.create({
     navBtn: {
-        fontSize: 18, 
+        height: 50,
+        borderRadius: 20,
+        backgroundColor: '#85bb65', 
+        padding: 10,
+        fontSize: 18,
+        fontWeight: 'bold',
         margin: 5,
         marginBottom: 5
     }

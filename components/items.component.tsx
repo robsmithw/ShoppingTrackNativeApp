@@ -9,11 +9,14 @@ import { ItemsScreenNavigationProp, ItemsScreenRouteProp, redirectToItemAdd, red
 import IStore from '../models/store.model';
 
 import { Picker } from '@react-native-picker/picker';
+import { ItemValue } from '@react-native-picker/picker/typings/Picker';
 
 import CheckBox from '@react-native-community/checkbox';
 
 import { convertPriceStringToNumber, createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utilities/utils';
 import { getAllStores, getItemsForUser, getItemsForUserByStore, updateItem } from '../utilities/api';
+import { FilterListModal } from './filter_list_modal';
+import { UpdatePriceModal } from './update_price_modal';
 
 type Props = {
     navigation: ItemsScreenNavigationProp,
@@ -54,6 +57,8 @@ const styles = StyleSheet.create({
     switchRow: {
         fontSize: 18,
         flexDirection: 'row',
+        borderBottomColor: '#000',
+        borderBottomWidth: 2
     },
     checkListRow: {
         display: 'flex',
@@ -64,9 +69,11 @@ const styles = StyleSheet.create({
     filterBtn: {
         fontSize: 20, 
         fontWeight: 'bold',
+        paddingRight: 10
     },
     filterImg: {
-        marginLeft: 'auto'
+        marginLeft: 'auto',
+        flexDirection: 'row'
     },
     changeStatusButtons: {
         height: 35,
@@ -118,10 +125,10 @@ const ItemsComponent = ({ route, navigation }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [currentUserId, setCurrentUserId] = useState<number>(0);
     const [currentStoreId, setCurrentStoreId] = useState<number | undefined>(0);
-    const [shoppingItems, setShoppingItems] = useState<IItem[]>([]);
+    const [allItems, setAllItems] = useState<IItem[]>([]);
     const [purchasedItems, setpurchasedItems] = useState<IItem[]>([]);
     const [searchedItems, setsearchedItems] = useState<IItem[]>([]);
-    const [data, setData] = useState<IItem[]>([]); //controls what items are shown (purchased or shoppingItems)
+    const [itemsDisplayed, setItemsDisplayed] = useState<IItem[]>([]); //controls what items are shown (purchased or shoppingItems)
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [filterModalVisible, setFilterModalVisible] = useState<boolean>(false);
     const [pricePaid, setPricePaid] = useState<string>('');
@@ -168,11 +175,24 @@ const ItemsComponent = ({ route, navigation }: Props) => {
         redirectToItemDetails(navigation, currentUserId, currentStoreId, item);
     }
 
+    const filterItemsDisplayed = (items: IItem[]) => {
+        if(!togglePurchased){
+            //If filter to show purchased items is not checked, only show not purchased items
+            items = items.filter((item: IItem) => !item.purchased)
+            setItemsDisplayed(items);
+        }
+        //Include all items in our items displayed (includes purchased items)
+        setItemsDisplayed(items);
+    }
+
     const getItems = (user_id: number, store_id: number | undefined) => {
         // specific store selected
         if (store_id != undefined) {
             getItemsForUserByStore(user_id, store_id)
-            .then((json: IItem[]) => setData(json))
+            .then((json: IItem[]) => {
+                setAllItems(json);
+                filterItemsDisplayed(json);
+            })
             .catch((error) => {
                 console.error(error);
                 createErrorAlert(error.message);
@@ -181,7 +201,10 @@ const ItemsComponent = ({ route, navigation }: Props) => {
         }
         else{
             getItemsForUser(user_id)
-            .then((json: IItem[]) => setData(json))
+            .then((json: IItem[]) => {
+                setAllItems(json);
+                filterItemsDisplayed(json);
+            })
             .catch((error) => {
                 console.error(error);
                 createErrorAlert(error.message);
@@ -194,38 +217,19 @@ const ItemsComponent = ({ route, navigation }: Props) => {
         let searchedItemsList: IItem[] = [];
 
         if (searchText == '') {
-            setData(shoppingItems);
+            setItemsDisplayed(allItems);
         }
 
         if (searchText != '') {
-            shoppingItems.forEach(
+            allItems.forEach(
                 (element: IItem) => {
                     if(element.name.toLowerCase().includes(searchText.toLowerCase())){
                         searchedItemsList.push(element);
                     }
                 }
             );
-            setData(searchedItemsList);
+            setItemsDisplayed(searchedItemsList);
         }
-    }
-
-    const StorePicklist = (): JSX.Element => {
-        return (
-            <Picker
-              selectedValue={selectedStore}
-              style={{height: 50, width: 150}}
-              onValueChange={(itemValue, itemIndex) => {
-                setSelectedStore(itemValue.toString());
-              }}
-            >
-                <Picker.Item label='None' value='none' />
-                {stores.map((prop: IStore, key: number) => {
-                    return (
-                        <Picker.Item label={prop.name} value={prop.name} key={key} />
-                    );
-                })}
-            </Picker>
-        );
     }
 
     const changeItemStatus = (item: IItem, purchased: boolean) => {
@@ -251,103 +255,6 @@ const ItemsComponent = ({ route, navigation }: Props) => {
                 createErrorAlert(error.message);
             });
         }
-    }
-
-    const UpdatePriceModal = (): JSX.Element => {
-        return(
-            <Modal
-              animationType='slide'
-              transparent={true}
-              visible={modalVisible}
-              onRequestClose={() => {setModalVisible(false)}}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <FloatingLabelInput
-                          label={'Price Paid'}
-                          value={pricePaid}
-                          maskType='currency'
-                          currencyDivider=',' 
-                          keyboardType='numeric'
-                          onChangeText={(val) => setPricePaid(val)}
-                        />
-
-                        <FloatingLabelInput
-                          label={'Store with Price'}
-                          value={selectedStore}
-                          editable={false}
-                        />
-                        <StorePicklist />
-
-                        <Text>Would you like to update the price paid for this item?</Text>
-
-                        <TouchableHighlight
-                          style={{ ...styles.openButton, backgroundColor: '#85bb65' }}
-                          onPress={() => {
-                            setModalVisible(!modalVisible);
-                            updatePreviousPrice();
-                          }}
-                        >
-                        <Text style={styles.textStyle}>Yes</Text>
-                        </TouchableHighlight>
-
-                        <TouchableHighlight
-                          style={{ ...styles.openButton, backgroundColor: '#85bb65' }}
-                          onPress={() => {
-                            setModalVisible(!modalVisible);
-                          }}
-                        >
-                        <Text style={styles.textStyle}>No</Text>
-                        </TouchableHighlight>
-                    </View>
-                </View>
-            </Modal>
-        )
-    }
-
-    const FilterListModal = (): JSX.Element => {
-        let purchasedFilter: boolean = togglePurchased;
-        return(
-            <Modal
-              transparent={true}
-              visible={filterModalVisible}
-              onRequestClose={() => {setFilterModalVisible(false)}}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-
-                        <Text>Filter Shopping List</Text>
-
-                        <View style={styles.checkListRow}>
-                            {/* TODO : doing this rather than state avoids the constant refresh, but cannot change more than once */}
-                            <CheckBox
-                                value={purchasedFilter}
-                                onValueChange={(newValue: boolean) => {purchasedFilter = newValue}}
-                            />
-                            <Text>Show Purchased Items</Text>
-                        </View>
-
-                        <TouchableHighlight
-                          style={{ ...styles.openButton, backgroundColor: '#85bb65' }}
-                          onPress={() => {
-                            setFilterModalVisible(!filterModalVisible);
-                          }}
-                        >
-                            <Text style={styles.textStyle}>Apply</Text>
-                        </TouchableHighlight>
-
-                        <TouchableHighlight
-                          style={{ ...styles.openButton, backgroundColor: '#808080' }}
-                          onPress={() => {
-                            setFilterModalVisible(!filterModalVisible);
-                          }}
-                        >
-                            <Text style={styles.textStyle}>Cancel</Text>
-                        </TouchableHighlight>
-                    </View>
-                </View>
-            </Modal>
-        )
     }
 
     const renderAllStores = () => {
@@ -402,7 +309,6 @@ const ItemsComponent = ({ route, navigation }: Props) => {
                 />
                 <View style={styles.filterImg}>
                     <Text style={styles.filterBtn}>Filter</Text>
-                    {/* //this needs to open a modal with filter settings to check and apply */}
                     <TouchableWithoutFeedback onPress={() => setFilterModalVisible(true)}> 
                         <Image 
                             source={require('../assets/dropDown.png')} 
@@ -416,13 +322,36 @@ const ItemsComponent = ({ route, navigation }: Props) => {
             {isLoading ? 
             <Text>Loading...</Text> : 
             <FlatList 
-              data={data}
+              data={itemsDisplayed}
               renderItem={({item}) =>  <Item item={item}></Item>}
-              keyExtractor={(item, index) => item.itemId.toString()}
+              keyExtractor={(item: IItem, index: number) => item.itemId.toString()}
             />
             }
-            <UpdatePriceModal />
-            <FilterListModal />
+            <UpdatePriceModal 
+                isModalVisible={modalVisible}
+                onModalRequestClose={() => setModalVisible(!modalVisible)}
+                pricePaid={pricePaid}
+                onPricePaidChanged={(val: string) => setPricePaid(val)}
+                onUpdatePriceClicked={() => {
+                    setModalVisible(!modalVisible);
+                    updatePreviousPrice();
+                }}
+                stores={stores}
+                selectedStore={selectedStore}
+                onStoreChanged={(itemValue: ItemValue, itemIndex: number) => {
+                    setSelectedStore(itemValue.toString());
+                }}
+            />
+            <FilterListModal 
+                isChecked={togglePurchased}
+                isModalVisible={filterModalVisible}
+                onCheckBoxChanged={(isChecked: boolean) => setTogglePurchased(isChecked)}
+                onModalRequestClose={() => setFilterModalVisible(!filterModalVisible)}
+                onApplyClicked={() => {
+                    filterItemsDisplayed(allItems);
+                    setFilterModalVisible(!filterModalVisible);
+                }}
+            />
         </SafeAreaView>
     );
 

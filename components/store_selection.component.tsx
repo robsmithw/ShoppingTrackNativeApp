@@ -46,8 +46,6 @@ const StoreSelectionComponent = ({ route, navigation }: Props) => {
     const [isEnabled, setIsEnabled] = useState<boolean>(false);
     const [currentUserId, setCurrentUserId] = useState<number>(0);
 
-    const walmartPicture: string = '../assets/walmart.png';
-
     const Store = ({ store }: IStoreProps): JSX.Element => {
         return (
             <View style={styles.storesRow}>

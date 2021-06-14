@@ -5,8 +5,9 @@ import { redirectToLogin, SignUpScreenNavigationProp, SignUpScreenRouteProp } fr
 import { IUser, User } from '../models/user.model';
 import { login, register } from '../utilities/api';
 import Toast from 'react-native-simple-toast';
-import { createErrorAlert, StyledButton } from '../utilities/utils';
+import { createErrorAlert } from '../utilities/utils';
 import { TouchableHighlight } from 'react-native-gesture-handler';
+import { StyledButton } from './styled_button';
 
 type Props = {
     navigation: SignUpScreenNavigationProp,
@@ -26,7 +27,6 @@ const styles = StyleSheet.create({
     signUpBtn: {
         height: 50,
         borderRadius: 20,
-        //this background color for some reason makes it not square anymore
         backgroundColor: '#85bb65', 
         padding: 10,
         fontSize: 20,

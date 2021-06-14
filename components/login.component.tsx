@@ -8,7 +8,8 @@ import { LoginScreenNavigationProp, LoginScreenRouteProp, redirectToSignUp, redi
 import { IUser, User } from '../models/user.model';
 
 import { login } from '../utilities/api';
-import { createErrorAlert, StyledButton } from '../utilities/utils';
+import { createErrorAlert } from '../utilities/utils';
+import { StyledButton } from './styled_button';
 
 type Props = {
     navigation: LoginScreenNavigationProp,
@@ -32,7 +33,6 @@ const styles = StyleSheet.create({
     loginBtn: {
         height: 50,
         borderRadius: 20,
-        //this background color for some reason makes it not square anymore
         backgroundColor: '#85bb65', 
         padding: 10,
         fontSize: 20,
