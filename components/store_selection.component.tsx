@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Text, SafeAreaView, View, FlatList, StyleSheet, Switch, TouchableWithoutFeedback, GestureResponderEvent, Image } from 'react-native';
 import IStore from '../models/store.model'
 import { redirectToHome, StoreSelectionScreenNavigationProp, StoreSelectionScreenRouteProp } from '../models/navigation.model';
 import { User } from '../models/user.model';
 import Toast from 'react-native-simple-toast';
-import { getAllStores, getStoresWithItemsByUser } from '../utilities/api';
-import { createErrorAlert } from '../utilities/utils';
-import { store_images } from '../utilities/store_images';
+import { createErrorAlert } from '../utils/utils';
+import { store_images } from '../utils/store_images';
+import { getAllStores, getStoresWithItemsByUser } from '../services/store_service';
+import { UserContext } from '../contexts/user_context';
+import { PropContext } from '../contexts/prop_context';
 
 type Props = {
     navigation: StoreSelectionScreenNavigationProp,
@@ -30,21 +32,27 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end'
     },
     storesRow: {
-        padding: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 5,
         flexDirection: 'column',
-        alignItems: 'center'
+        alignItems: 'center',
+        width: 125,
     },
     stores: {
-        fontSize: 24
-    }
+        fontSize: 24,
+        textAlign: 'center',
+    },
   });
 
-const StoreSelectionComponent = ({ route, navigation }: Props) => {
+const StoreSelectionComponent = ({ navigation }: Props) => {
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [data, setData] = useState<IStore[]>([]);
-    const [isEnabled, setIsEnabled] = useState<boolean>(false);
-    const [currentUserId, setCurrentUserId] = useState<number>(0);
+    const [isEnabled, setIsEnabled] = useState<boolean>(true);
+    const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+
+    const userContext = useContext(UserContext);
+    const propContext = useContext(PropContext);
 
     const Store = ({ store }: IStoreProps): JSX.Element => {
         return (
@@ -56,6 +64,7 @@ const StoreSelectionComponent = ({ route, navigation }: Props) => {
                         source={requireStorePicture(store)}
                         accessibilityLabel={store.name}
                         />
+                        {/* {store.name.indexOf(' ') > -1 ?} */}
                         <Text style={styles.stores}> {store.name} </Text>
                     </View>
                 </TouchableWithoutFeedback>
@@ -74,21 +83,28 @@ const StoreSelectionComponent = ({ route, navigation }: Props) => {
     }
 
     const onStorePress = (store: IStore) => {
-        redirectToHome(navigation, currentUserId, store.storeId);
+        if (propContext.setStoreId !== null){
+            propContext.setStoreId(store.storeId);
+        }
+        redirectToHome(navigation);
     }
 
     const toggleSwitch = () => {
+        renderStoreList(!isEnabled);
         setIsEnabled(previousState => !previousState);
-        if (isEnabled) {
-            renderStoresWithItems(currentUserId);
+    }
+
+    const renderStoreList = (withItems: boolean) => {
+        if (withItems) {
+            renderStoresWithItems();
         }
         else{
             renderAllStores();
         }
     }
 
-    const renderStoresWithItems = (user_id: number) => {
-        getStoresWithItemsByUser(user_id)
+    const renderStoresWithItems = () => {
+        getStoresWithItemsByUser(currentUserId, userContext.accessToken)
             .then((json: IStore[]) => setData(json))
             .catch((error) => {
                 console.error(error);
@@ -98,7 +114,7 @@ const StoreSelectionComponent = ({ route, navigation }: Props) => {
     }
 
     const renderAllStores = () => {
-        getAllStores()
+        getAllStores(userContext.accessToken)
         .then((json: IStore[]) => setData(json))
         .catch((error) => {
             console.error(error);
@@ -109,12 +125,12 @@ const StoreSelectionComponent = ({ route, navigation }: Props) => {
 
     useEffect( () => {
         Toast.show('Successfully logged in.')
-        setCurrentUserId(route.params.user_id);
-        renderStoresWithItems(route.params.user_id);
+        setCurrentUserId(userContext.userId);
+        renderStoreList(!isEnabled);
     }, []);
 
     return (
-        <SafeAreaView>
+        <SafeAreaView style={{flex:1}}>
             <Text style={styles.title}>Select a Store</Text>
             <View style={styles.switchRow}>
                 <Text>Show all Stores?</Text>

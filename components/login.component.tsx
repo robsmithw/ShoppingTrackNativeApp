@@ -1,14 +1,16 @@
-import React, { useState, useRef, useLayoutEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect, useContext } from 'react';
 
 import { View, Text, StyleSheet } from "react-native";
 
 import { FloatingLabelInput } from 'react-native-floating-label-input';
+import { UserContext } from '../contexts/user_context';
 
 import { LoginScreenNavigationProp, LoginScreenRouteProp, redirectToSignUp, redirectToStoreSelection } from '../models/navigation.model';
-import { IUser, User } from '../models/user.model';
+import { ILoginResponse, IUser, User } from '../models/user.model';
+import { login } from '../services/user_service';
 
-import { login } from '../utilities/api';
-import { createErrorAlert } from '../utilities/utils';
+
+import { createErrorAlert } from '../utils/utils';
 import { StyledButton } from './styled_button';
 
 type Props = {
@@ -53,6 +55,8 @@ const LoginComponent = ({ route, navigation }: Props) => {
     const [password, setPassword] = useState<string>('');
     const passwordInput = useRef<HTMLInputElement | null>(null);
 
+    const userContext = useContext(UserContext);
+
     const onSigninButtonPress = () => {
         if(username == "" || password == ""){
             if(username == ""){
@@ -67,7 +71,15 @@ const LoginComponent = ({ route, navigation }: Props) => {
         let attemptedLogin: User = new User(username, password);
 
         login(attemptedLogin)
-        .then((json: IUser) => redirectToStoreSelect(json))
+        .then((json: ILoginResponse) => {
+            if (userContext.setAccessToken !== null){
+                userContext.setAccessToken(json.accessToken);
+            }
+            if (userContext.setUserId !== null){
+                userContext.setUserId(json.userId);
+            }
+            redirectToStoreSelect(json)
+        })
         .catch(error => setPassword(''));
     }
 
@@ -75,9 +87,9 @@ const LoginComponent = ({ route, navigation }: Props) => {
         redirectToSignUp(navigation);
     }
 
-    const redirectToStoreSelect = (user: IUser) => {
-        if (user != undefined){
-            redirectToStoreSelection(navigation, user.user_Id);
+    const redirectToStoreSelect = (loginResponse: ILoginResponse) => {
+        if (loginResponse != undefined){
+            redirectToStoreSelection(navigation);
         }
     }
 

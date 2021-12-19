@@ -7,8 +7,9 @@ import { PriceViewScreenNavigationProp, PriceViewScreenRouteProp } from '../mode
 import { IPrice } from '../models/price.model';
 import IStore from '../models/store.model';
 import { User } from '../models/user.model';
-import { deletePrice, getAllPrices, getAllStores } from '../utilities/api';
-import { createErrorAlert, formatString, isUndefinedOrNull } from '../utilities/utils';
+import { deletePrice, getAllPrices } from '../services/price_service';
+import { getAllStores } from '../services/store_service';
+import { createErrorAlert, formatString, isUndefinedOrNull } from '../utils/utils';
 
 type Props = {
     navigation: PriceViewScreenNavigationProp,

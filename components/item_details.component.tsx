@@ -4,10 +4,12 @@ import { ItemDetailsScreenNavigationProp, ItemDetailsScreenRouteProp, redirectTo
 import { IPrice } from '../models/price.model';
 import IItem, { getDefaultItem } from '../models/item.model';
 import NumberFormat from 'react-number-format';
-import { createErrorAlert, formatString, isUndefinedOrNull } from '../utilities/utils';
+import { createErrorAlert, formatString, isUndefinedOrNull } from '../utils/utils';
 import IStore from '../models/store.model';
-import { getAllStores, getAllPrices, deleteItem } from '../utilities/api';
 import { StyledButton } from './styled_button';
+import { getAllPrices } from '../services/price_service';
+import { getAllStores } from '../services/store_service';
+import { deleteItem } from '../services/item_service';
 
 type Props = {
     navigation: ItemDetailsScreenNavigationProp,

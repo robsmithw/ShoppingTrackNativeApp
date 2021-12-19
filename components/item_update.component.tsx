@@ -5,8 +5,9 @@ import IItem from '../models/item.model';
 import { ItemUpdateScreenNavigationProp, ItemUpdateScreenRouteProp, redirectToHome } from '../models/navigation.model';
 import IStore from '../models/store.model';
 import { User } from '../models/user.model';
-import { getAllStores, updateItem } from '../utilities/api';
-import { convertPriceStringToNumber, createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utilities/utils';
+import { updateItem } from '../services/item_service';
+import { getAllStores } from '../services/store_service';
+import { convertPriceStringToNumber, createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utils/utils';
 import { StorePickList } from './store_pick_list.component';
 import { StyledButton } from './styled_button';
 

@@ -3,11 +3,11 @@ import { View, Text, Button, StyleSheet } from "react-native";
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import { redirectToLogin, SignUpScreenNavigationProp, SignUpScreenRouteProp } from '../models/navigation.model';
 import { IUser, User } from '../models/user.model';
-import { login, register } from '../utilities/api';
 import Toast from 'react-native-simple-toast';
-import { createErrorAlert } from '../utilities/utils';
+import { createErrorAlert } from '../utils/utils';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { StyledButton } from './styled_button';
+import { register } from '../services/user_service';
 
 type Props = {
     navigation: SignUpScreenNavigationProp,

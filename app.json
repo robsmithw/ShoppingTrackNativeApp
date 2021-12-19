@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ShoppingTrackUI_rewrite",
-    "slug": "ShoppingTrackUI_rewrite",
+    "name": "ShoppingTrackUI",
+    "slug": "ShoppingTrackUI",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

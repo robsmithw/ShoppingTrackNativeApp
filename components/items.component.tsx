@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 
@@ -13,10 +13,13 @@ import { ItemValue } from '@react-native-picker/picker/typings/Picker';
 
 import CheckBox from '@react-native-community/checkbox';
 
-import { convertPriceStringToNumber, createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utilities/utils';
-import { getAllStores, getItemsForUser, getItemsForUserByStore, updateItem } from '../utilities/api';
+import { convertPriceStringToNumber, createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utils/utils';
 import { FilterListModal } from './filter_list_modal';
 import { UpdatePriceModal } from './update_price_modal';
+import { ItemService } from '../services/item_service';
+import { getAllStores } from '../services/store_service';
+import { UserContext } from '../contexts/user_context';
+import { PropContext } from '../contexts/prop_context';
 
 type Props = {
     navigation: ItemsScreenNavigationProp,
@@ -123,20 +126,20 @@ const styles = StyleSheet.create({
 const ItemsComponent = ({ route, navigation }: Props) => {
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [currentUserId, setCurrentUserId] = useState<number>(0);
-    const [currentStoreId, setCurrentStoreId] = useState<number | undefined>(0);
     const [allItems, setAllItems] = useState<IItem[]>([]);
-    const [purchasedItems, setpurchasedItems] = useState<IItem[]>([]);
-    const [searchedItems, setsearchedItems] = useState<IItem[]>([]);
     const [itemsDisplayed, setItemsDisplayed] = useState<IItem[]>([]); //controls what items are shown (purchased or shoppingItems)
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [filterModalVisible, setFilterModalVisible] = useState<boolean>(false);
     const [pricePaid, setPricePaid] = useState<string>('');
     const [stores, setStores] = useState<IStore[]>([]);
-    const [storePicker, setStorePicker] = useState<IStoreSelectItems>(new IStoreSelectItems());
     const [itemToUpdate, setItemToUpdate] = useState<IItem>(getDefaultItem());
     const [selectedStore, setSelectedStore] = useState<string>('none');
     const [togglePurchased, setTogglePurchased] = useState<boolean>(false);
+
+    const userContext = useContext(UserContext);
+    const propContext = useContext(PropContext);
+
+    const itemService = useMemo(() => new ItemService(userContext.accessToken), [userContext.accessToken])
 
     const Item = ({ item }: IItemProps): JSX.Element => {
         return (
@@ -172,7 +175,7 @@ const ItemsComponent = ({ route, navigation }: Props) => {
     }
 
     const onItemSelected = (item: IItem) => {
-        redirectToItemDetails(navigation, currentUserId, currentStoreId, item);
+        redirectToItemDetails(navigation, userContext.userId, propContext.storeId, item);
     }
 
     const filterItemsDisplayed = (items: IItem[]) => {
@@ -185,31 +188,33 @@ const ItemsComponent = ({ route, navigation }: Props) => {
         setItemsDisplayed(items);
     }
 
-    const getItems = (user_id: number, store_id: number | undefined) => {
+    const getItems = (user_id: number | null, store_id: number | null) => {
         // specific store selected
-        if (store_id != undefined) {
-            getItemsForUserByStore(user_id, store_id)
-            .then((json: IItem[]) => {
-                setAllItems(json);
-                filterItemsDisplayed(json);
-            })
-            .catch((error) => {
-                console.error(error);
-                createErrorAlert(error.message);
-            })
-            .finally(() => setIsLoading(false));
-        }
-        else{
-            getItemsForUser(user_id)
-            .then((json: IItem[]) => {
-                setAllItems(json);
-                filterItemsDisplayed(json);
-            })
-            .catch((error) => {
-                console.error(error);
-                createErrorAlert(error.message);
-            })
-            .finally(() => setIsLoading(false));
+        if (user_id !== null){
+            if (store_id !== null) {
+                itemService.getItemsForUserByStore(user_id, store_id)
+                .then((response) => {
+                    setAllItems(response.data);
+                    filterItemsDisplayed(response.data);
+                })
+                .catch((error) => {
+                    console.error(error);
+                    createErrorAlert(error.message);
+                })
+                .finally(() => setIsLoading(false));
+            }
+            else{
+                itemService.getItemsForUser(user_id)
+                .then((response) => {
+                    setAllItems(response.data);
+                    filterItemsDisplayed(response.data);
+                })
+                .catch((error) => {
+                    console.error(error);
+                    createErrorAlert(error.message);
+                })
+                .finally(() => setIsLoading(false));
+            }
         }
     }
 
@@ -235,8 +240,8 @@ const ItemsComponent = ({ route, navigation }: Props) => {
     const changeItemStatus = (item: IItem, purchased: boolean) => {
         item.purchased = purchased;
         setItemToUpdate(item);
-        updateItem(item)
-        .then((json: IItem) => /*updateList(json, purchased)*/{})
+        itemService.updateItem(item)
+        .then((response) => /*updateList(json, purchased)*/{})
         .catch((error) => {
             console.error(error);
             createErrorAlert(error.message);
@@ -248,8 +253,8 @@ const ItemsComponent = ({ route, navigation }: Props) => {
         if (item != getDefaultItem()){
             item.previous_Price = convertPriceStringToNumber(pricePaid);
             item.last_Store_Id = getStoreIdByName(stores, selectedStore);
-            updateItem(item)
-            .then((json: IItem) => {})
+            itemService.updateItem(item)
+            .then((response) => {})
             .catch((error) => {
                 console.error(error);
                 createErrorAlert(error.message);
@@ -258,7 +263,7 @@ const ItemsComponent = ({ route, navigation }: Props) => {
     }
 
     const renderAllStores = () => {
-        getAllStores()
+        getAllStores(userContext.accessToken)
         .then((json: IStore[]) => setStores(json))
         .catch((error) => {
             console.error(error);
@@ -267,22 +272,20 @@ const ItemsComponent = ({ route, navigation }: Props) => {
     }
 
     const navigateToAddItem = () => {
-        redirectToItemAdd(navigation, currentUserId, currentStoreId);
+        redirectToItemAdd(navigation, userContext.userId, propContext.storeId);
     }
 
     useEffect( () => {
-        setCurrentStoreId(route.params.store_id);
-        setCurrentUserId(route.params.user_id);
-        getItems(route.params.user_id, route.params.store_id);
+        getItems(userContext.userId, propContext.storeId);
         renderAllStores();
         //this is set up because navigation does not destroy the component
         //so this works as a reload when navigation.navigate to here is called
         navigation.addListener(
             'focus',
             () => {
-                getItems(route.params.user_id, route.params.store_id);
+                getItems(userContext.userId, propContext.storeId);
             }
-          );
+        );
 
         return function unmount() {
             navigation.removeListener('focus', () => {});

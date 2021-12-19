@@ -24,3 +24,8 @@ export interface IUser {
     admin: boolean,
     validated: boolean
 }
+
+export interface ILoginResponse {
+    accessToken: string
+    userId: number | null
+}

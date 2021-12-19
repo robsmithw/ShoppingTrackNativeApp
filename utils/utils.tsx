@@ -1,11 +1,9 @@
-import React from "react";
-
-import { StyleProp, View, ViewStyle, Button, NativeSyntheticEvent, NativeTouchEvent, Alert, TouchableHighlight, Text } from "react-native";
+import { Alert } from "react-native";
 
 import IStore from "../models/store.model";
 
 
-export function isUndefinedOrNull(value: any): boolean {
+export function isUndefinedOrNull<T>(value: T): boolean {
     if(value == null){
         return true;
     }

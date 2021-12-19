@@ -6,10 +6,11 @@ import DateTimePicker, { Event } from '@react-native-community/datetimepicker';
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import { PriceAddScreenNavigationProp, PriceAddScreenRouteProp } from '../models/navigation.model';
 import { User } from '../models/user.model';
-import { createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull, StyledButton } from '../utilities/utils';
+import { createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utils/utils';
 import IStore from '../models/store.model';
-import { getAllStores } from '../utilities/api';
+import { StyledButton } from './styled_button';
 import IItem from '../models/item.model';
+import { getAllStores } from '../services/store_service';
 
 type Mode = 'date' | 'time' | 'datetime' | 'countdown';
 
