@@ -5,5 +5,5 @@ stages:       #Different stages which our pipeline need
 eslint:      #Name of the job 
   stage: lint  #Tells job which stage it is 
   script:          #Scripts which need to be ran by the server  
-    - yarn add eslint
-    - yarn run lint
+    - npm i eslint
+    - npm run lint
