@@ -1,0 +1,9 @@
+image: node   #The enviornment which we need
+stages:       #Different stages which our pipeline need
+  - lint
+  
+eslint:      #Name of the job 
+  stage: lint  #Tells job which stage it is 
+  script:          #Scripts which need to be ran by the server  
+    - yarn add eslint
+    - yarn run lint
