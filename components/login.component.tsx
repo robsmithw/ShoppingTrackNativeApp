@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect, useContext } from 'react';
+import React, { useState, useRef, useLayoutEffect, useContext, useMemo } from 'react';
 
 import { View, Text, StyleSheet } from "react-native";
 
@@ -7,7 +7,7 @@ import { UserContext } from '../contexts/user_context';
 
 import { LoginScreenNavigationProp, LoginScreenRouteProp, redirectToSignUp, redirectToStoreSelection } from '../models/navigation.model';
 import { ILoginResponse, IUser, User } from '../models/user.model';
-import { login } from '../services/user_service';
+import { UserService } from '../services/user_service';
 
 
 import { createErrorAlert } from '../utils/utils';
@@ -57,6 +57,8 @@ const LoginComponent = ({ route, navigation }: Props) => {
 
     const userContext = useContext(UserContext);
 
+    const userService = useMemo(() => new UserService(), []);
+
     const onSigninButtonPress = () => {
         if(username == "" || password == ""){
             if(username == ""){
@@ -70,15 +72,15 @@ const LoginComponent = ({ route, navigation }: Props) => {
         }
         let attemptedLogin: User = new User(username, password);
 
-        login(attemptedLogin)
-        .then((json: ILoginResponse) => {
+        userService.login(attemptedLogin)
+        .then((response) => {
             if (userContext.setAccessToken !== null){
-                userContext.setAccessToken(json.accessToken);
+                userContext.setAccessToken(response.data.accessToken);
             }
             if (userContext.setUserId !== null){
-                userContext.setUserId(json.userId);
+                userContext.setUserId(response.data.userId);
             }
-            redirectToStoreSelect(json)
+            redirectToStoreSelect(response.data)
         })
         .catch(error => setPassword(''));
     }

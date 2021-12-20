@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Text, SafeAreaView, View, FlatList, StyleSheet, Switch, TouchableWithoutFeedback, GestureResponderEvent, Image } from 'react-native';
 import IStore from '../models/store.model'
 import { redirectToHome, StoreSelectionScreenNavigationProp, StoreSelectionScreenRouteProp } from '../models/navigation.model';
@@ -6,7 +6,7 @@ import { User } from '../models/user.model';
 import Toast from 'react-native-simple-toast';
 import { createErrorAlert } from '../utils/utils';
 import { store_images } from '../utils/store_images';
-import { getAllStores, getStoresWithItemsByUser } from '../services/store_service';
+import { StoreService } from '../services/store_service';
 import { UserContext } from '../contexts/user_context';
 import { PropContext } from '../contexts/prop_context';
 
@@ -53,6 +53,8 @@ const StoreSelectionComponent = ({ navigation }: Props) => {
 
     const userContext = useContext(UserContext);
     const propContext = useContext(PropContext);
+
+    const storeService = useMemo(() => new StoreService(userContext.accessToken), [userContext.accessToken]);
 
     const Store = ({ store }: IStoreProps): JSX.Element => {
         return (
@@ -104,8 +106,10 @@ const StoreSelectionComponent = ({ navigation }: Props) => {
     }
 
     const renderStoresWithItems = () => {
-        getStoresWithItemsByUser(currentUserId, userContext.accessToken)
-            .then((json: IStore[]) => setData(json))
+        if (currentUserId === null) return;
+
+        storeService.getStoresWithItemsByUser(currentUserId)
+            .then((response) => setData(response.data))
             .catch((error) => {
                 console.error(error);
                 createErrorAlert(error);
@@ -114,8 +118,8 @@ const StoreSelectionComponent = ({ navigation }: Props) => {
     }
 
     const renderAllStores = () => {
-        getAllStores(userContext.accessToken)
-        .then((json: IStore[]) => setData(json))
+        storeService.getAllStores()
+        .then((response) => setData(response.data))
         .catch((error) => {
             console.error(error);
             createErrorAlert(error);

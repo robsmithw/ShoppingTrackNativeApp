@@ -1,24 +1,34 @@
-import { get } from "../utils/api_const";
+import { AxiosResponse } from "axios";
+import { useMemo } from "react";
+import { ApiService } from "./apiService";
+import { createRoute } from "../utils/api_const";
+import IStore from "../models/store.model";
 
-// Store endpoints
-/**
- * Returns all stores.
- * 
- * @param bearer The bearer token of authorized user
- * @returns The result of a get request to the endpoint `Stores`
- */
-export const getAllStores = (bearer: string | null): Promise<any> => {
-    return get('Stores', bearer, undefined);
-}
+export class StoreService {
+    
+    constructor(readonly bearer: string) {}
+    
+    
+    apiService = useMemo(() => new ApiService(this.bearer), [this.bearer]);
+    http = this.apiService.getAxiosInstance();
 
-/**
-   * Returns the stores with items for the specified user.
-   *
-   *
-   * @param user_id - The user's id
-   * @param bearer - The bearer token of authorized user
-   * @returns The result of a get request to the endpoint `Stores/GetStoresWithItemsByUser?userId={user_id}`
-   */
-export const getStoresWithItemsByUser = (user_id: number | null, bearer: string | null): Promise<any> => {
-    return get('Stores/GetStoresWithItemsByUser', bearer, [{paramName: 'userId', value: user_id}]);
+    /**
+     * Returns all stores.
+     * 
+     * @returns The result of a get request to the endpoint `Stores`
+     */
+    public getAllStores = (): Promise<AxiosResponse<Array<IStore>>> => {
+        return this.http.get('Stores');
+    }
+    
+    /**
+     * Returns the stores with items for the specified user.
+     *
+     * @param user_id - The user's id
+     * @returns The result of a get request to the endpoint `Stores/GetStoresWithItemsByUser?userId={user_id}`
+     */
+    public getStoresWithItemsByUser = (user_id: number): Promise<AxiosResponse<Array<IStore>>> => {
+        const route = createRoute('Stores/GetStoresWithItemsByUser', [{paramName: 'userId', value: user_id}]);
+        return this.http.get(route);
+    }
 }

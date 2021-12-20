@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableWithoutFeedback, Image, Alert } from "react-native";
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import NumberFormat from 'react-number-format';
+import { PropContext } from '../contexts/prop_context';
+import { UserContext } from '../contexts/user_context';
 import IItem from '../models/item.model';
 import { PriceViewScreenNavigationProp, PriceViewScreenRouteProp } from '../models/navigation.model';
 import { IPrice } from '../models/price.model';
 import IStore from '../models/store.model';
 import { User } from '../models/user.model';
-import { deletePrice, getAllPrices } from '../services/price_service';
-import { getAllStores } from '../services/store_service';
+import { PriceService } from '../services/price_service';
+import { StoreService } from '../services/store_service';
 import { createErrorAlert, formatString, isUndefinedOrNull } from '../utils/utils';
 
 type Props = {
@@ -46,6 +48,12 @@ const PriceViewComponent = ({ route, navigation }: Props) => {
     const [currentItem, setCurrentItem] = useState<IItem>();
     const [data, setData] = useState<IPrice[]>([]);
     const [stores, setStores] = useState<IStore[]>([]);
+
+    const userContext = useContext(UserContext);
+    const propContext = useContext(PropContext);
+
+    const storeService = useMemo(() => new StoreService(userContext.accessToken), [userContext.accessToken]);
+    const priceService = useMemo(() => new PriceService(userContext.accessToken), [userContext.accessToken]);
 
     const Price = ({ price }: IPriceProps): JSX.Element => {
         return (
@@ -88,8 +96,8 @@ const PriceViewComponent = ({ route, navigation }: Props) => {
                     style: "cancel"
                 },
                 { text: "OK", onPress: () => {
-                        deletePrice(price)
-                        .then((json: IPrice) => {
+                        priceService.deletePrice(price.id)
+                        .then((response) => {
                             // TODO: Currently this isn't working
                             // Details also needs to be updated (not working)
                             setData(data.filter(priceData => priceData.id != price.id));
@@ -106,9 +114,9 @@ const PriceViewComponent = ({ route, navigation }: Props) => {
     }
 
     const renderAllPrices = (item_id: number | undefined) => {
-        if (!isUndefinedOrNull(item_id)){
-            getAllPrices(item_id)
-            .then((json: IPrice[]) => {setData(json)})
+        if (item_id !== undefined){
+            priceService.getAllPrices(item_id)
+            .then((response) => {setData(response.data)})
             .catch((error) => {
                 console.error(error);
                 createErrorAlert(error);
@@ -121,8 +129,8 @@ const PriceViewComponent = ({ route, navigation }: Props) => {
 
     const getStores = () => {
         setStores([]);
-        getAllStores()
-        .then((json: IStore[]) => setStores(json))
+        storeService.getAllStores()
+        .then((response) => setStores(response.data))
         .catch((error) => {
             console.error(error);
             createErrorAlert(error);

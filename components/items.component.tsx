@@ -17,9 +17,9 @@ import { convertPriceStringToNumber, createErrorAlert, getStoreIdByName, getStor
 import { FilterListModal } from './filter_list_modal';
 import { UpdatePriceModal } from './update_price_modal';
 import { ItemService } from '../services/item_service';
-import { getAllStores } from '../services/store_service';
 import { UserContext } from '../contexts/user_context';
 import { PropContext } from '../contexts/prop_context';
+import { StoreService } from '../services/store_service';
 
 type Props = {
     navigation: ItemsScreenNavigationProp,
@@ -139,7 +139,8 @@ const ItemsComponent = ({ route, navigation }: Props) => {
     const userContext = useContext(UserContext);
     const propContext = useContext(PropContext);
 
-    const itemService = useMemo(() => new ItemService(userContext.accessToken), [userContext.accessToken])
+    const storeService = useMemo(() => new StoreService(userContext.accessToken), [userContext.accessToken]);
+    const itemService = useMemo(() => new ItemService(userContext.accessToken), [userContext.accessToken]);
 
     const Item = ({ item }: IItemProps): JSX.Element => {
         return (
@@ -263,8 +264,8 @@ const ItemsComponent = ({ route, navigation }: Props) => {
     }
 
     const renderAllStores = () => {
-        getAllStores(userContext.accessToken)
-        .then((json: IStore[]) => setStores(json))
+        storeService.getAllStores()
+        .then((response) => setStores(response.data))
         .catch((error) => {
             console.error(error);
             createErrorAlert(error.message);

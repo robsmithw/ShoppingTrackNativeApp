@@ -4,7 +4,7 @@ import { isUndefinedOrNull } from "../utils/utils";
 type UserContextType = {
     isAuthenticated: () => boolean,
     accessToken: string,
-    setAccessToken: React.Dispatch<React.SetStateAction<string>> | string,
+    setAccessToken: React.Dispatch<React.SetStateAction<string>>,
     userId: number | null,
     setUserId: React.Dispatch<React.SetStateAction<number | null>> | null
 
@@ -13,7 +13,7 @@ type UserContextType = {
 export const UserContext = React.createContext<UserContextType>({
     isAuthenticated: () => (false),
     accessToken: "",
-    setAccessToken: "",
+    setAccessToken: () => (""),
     userId: null,
     setUserId: null,
 });

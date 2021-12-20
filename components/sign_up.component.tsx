@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Button, StyleSheet } from "react-native";
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import { redirectToLogin, SignUpScreenNavigationProp, SignUpScreenRouteProp } from '../models/navigation.model';
@@ -7,7 +7,7 @@ import Toast from 'react-native-simple-toast';
 import { createErrorAlert } from '../utils/utils';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { StyledButton } from './styled_button';
-import { register } from '../services/user_service';
+import { UserService } from '../services/user_service';
 
 type Props = {
     navigation: SignUpScreenNavigationProp,
@@ -57,6 +57,8 @@ const SignUpComponent = ({ route, navigation }: Props) => {
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const [email, setEmail] = useState<string>('');
 
+    const userService = useMemo(() => new UserService(), [])
+
     const onSignupButtonPress = () => {
 
         if(email == "" || username == "" || password == "" || confirmPassword == ""){
@@ -88,8 +90,8 @@ const SignUpComponent = ({ route, navigation }: Props) => {
 
         let attemptedRegister: User = new User(username, password, email);
         
-        register(attemptedRegister)
-        .then((json: IUser) => redirectToLogin(navigation))
+        userService.register(attemptedRegister)
+        .then((response) => redirectToLogin(navigation))
         .catch(error => {
             setPassword('');
             createErrorAlert(error.message)

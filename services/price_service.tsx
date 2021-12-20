@@ -1,11 +1,33 @@
+import { AxiosResponse } from "axios";
+import { useMemo } from "react";
 import { IPrice } from "../models/price.model";
-import { deleteRequest, get } from "../utils/api_const";
+import { ApiService } from "./apiService";
 
-// Price endpoints
-export const getAllPrices = (item_id: number | undefined) => {
-    return get('Prices/' + item_id);
-}
+export class PriceService {
 
-export const deletePrice = (price: IPrice) => {
-    return deleteRequest('Prices/' + price.id);
+    constructor(private readonly bearer: string) {}
+
+
+    private apiService = useMemo(() => new ApiService(this.bearer), [this.bearer]);
+    private http = this.apiService.getAxiosInstance();
+
+    /**
+     * 
+     * 
+     * @param item_id 
+     * @returns 
+     */
+    public getAllPrices = (item_id: number): Promise<AxiosResponse<Array<IPrice>>> => {
+        return this.http.get(`Prices/${item_id}`);
+    }
+    
+    /**
+     * 
+     * 
+     * @param price_id 
+     * @returns 
+     */
+    public deletePrice = (price_id: number): Promise<AxiosResponse> => {
+        return this.http.delete(`Prices/${price_id}`);
+    }
 }

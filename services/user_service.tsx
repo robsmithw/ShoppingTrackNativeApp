@@ -5,10 +5,10 @@ import { ApiService } from "./apiService";
 
 export class UserService {
 
-    constructor(readonly bearer: string) {}
+    constructor() {}
 
 
-    apiService = useMemo(() => new ApiService(this.bearer), [this.bearer]);
+    apiService = useMemo(() => new ApiService(), []);
     http = this.apiService.getAxiosInstance();
 
     /**
