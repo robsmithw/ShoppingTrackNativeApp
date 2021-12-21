@@ -1,6 +1,10 @@
 {
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
+    "lint": "eslint src/**/*.{ts,tx,tsx}",
+    "code-formatter": "prettier src/**/*.{ts,tx,tsx} --write",
+    "code-formatter-check": "prettier --check src/**/*.{ts,tx,tsx}",
+    "types-check": "tsc --project . --noEmit --pretty --skipLibCheck",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
