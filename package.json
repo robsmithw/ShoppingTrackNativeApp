@@ -1,9 +1,9 @@
 {
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "lint": "eslint src/**/*.{ts,tx,tsx}",
-    "code-formatter": "prettier src/**/*.{ts,tx,tsx} --write",
-    "code-formatter-check": "prettier --check src/**/*.{ts,tx,tsx}",
+    "lint": "eslint *.tsx",
+    "code-formatter": "prettier *.tsx --write",
+    "code-formatter-check": "prettier --check *.tsx",
     "types-check": "tsc --project . --noEmit --pretty --skipLibCheck",
     "start": "expo start",
     "android": "expo start --android",
@@ -24,6 +24,7 @@
     "axios": "^0.24.0",
     "expo": "^43.0.0",
     "expo-status-bar": "~1.1.0",
+    "prettier": "^2.5.1",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-native": "0.64.3",
@@ -47,6 +48,10 @@
     "@types/react": "~17.0.21",
     "@types/react-dom": "~17.0.9",
     "@types/react-native": "~0.64.12",
+    "@typescript-eslint/eslint-plugin": "^5.8.0",
+    "@typescript-eslint/parser": "^5.8.0",
+    "eslint": "^8.5.0",
+    "eslint-plugin-react": "^7.28.0",
     "typescript": "~4.3.5"
   },
   "private": true
