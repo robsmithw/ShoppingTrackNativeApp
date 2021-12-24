@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { View, Text, Button, StyleSheet } from "react-native";
 import { FloatingLabelInput } from 'react-native-floating-label-input';
@@ -8,8 +8,10 @@ import IItem, { getDefaultItem } from '../models/item.model';
 import { createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utils/utils';
 import { StorePickList } from './store_pick_list.component';
 import { StyledButton } from './styled_button';
-import { getAllStores } from '../services/store_service';
-import { addItem, getItemsForUser } from '../services/item_service';
+import { StoreService } from '../services/store_service';
+import { ItemService } from '../services/item_service';
+import { UserContext } from '../contexts/user_context';
+import { PropContext } from '../contexts/prop_context';
 
 const styles = StyleSheet.create({
     btn: {
@@ -37,6 +39,12 @@ const ItemAddComponent = ({ route, navigation }: Props) => {
     const [stores, setStores] = useState<IStore[]>([]);
     const [selectedStore, setSelectedStore] = useState<string>('none');
     const [selectedStoreId, setSelectedStoreId] = useState<number>(0);
+    
+    const userContext = useContext(UserContext);
+    const propContext = useContext(PropContext);
+
+    const storeService = useMemo(() => new StoreService(userContext.accessToken), [userContext.accessToken]);
+    const itemService = useMemo(() => new ItemService(userContext.accessToken), [userContext.accessToken]);
 
     let errorMessage: string = '';
 
