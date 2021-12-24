@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet } from "react-native";
 import { FloatingLabelInput } from 'react-native-floating-label-input';
@@ -50,9 +51,9 @@ const ItemUpdateComponent = ({ route, navigation }: Props) => {
                 setSelectedStore(getStoreNameById(json, Number(store_id)));
             }    
         })
-        .catch((error) => {
+        .catch((error: AxiosError) => {
             console.error(error);
-            createErrorAlert(error);
+            createErrorAlert(error.message);
         });
     }
 
@@ -67,9 +68,9 @@ const ItemUpdateComponent = ({ route, navigation }: Props) => {
                 setCurrentItem(json);
                 redirectToHome(navigation, currentUserId, Number(currentStoreId));
             })
-            .catch((error) => {
+            .catch((error: AxiosError) => {
                 console.error(error);
-                createErrorAlert(error);
+                createErrorAlert(error.message);
             });
         }
     }

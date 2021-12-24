@@ -11,6 +11,7 @@ import IStore from '../models/store.model';
 import { StyledButton } from './styled_button';
 import IItem from '../models/item.model';
 import { getAllStores } from '../services/store_service';
+import { AxiosError } from 'axios';
 
 type Mode = 'date' | 'time' | 'datetime' | 'countdown';
 
@@ -69,9 +70,9 @@ const PriceAddComponent = ({ route, navigation }: Props) => {
                 setSelectedStore(getStoreNameById(json, Number(store_id)));
             }
         })
-        .catch((error) => {
+        .catch((error: AxiosError) => {
             console.error(error);
-            createErrorAlert(error);
+            createErrorAlert(error.message);
         });
     }
 

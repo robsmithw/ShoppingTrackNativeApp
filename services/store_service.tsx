@@ -1,4 +1,4 @@
-import { AxiosResponse } from "axios";
+import { AxiosInstance, AxiosResponse } from "axios";
 import { useMemo } from "react";
 import { ApiService } from "./apiService";
 import { createRoute } from "../utils/api_const";
@@ -6,11 +6,13 @@ import IStore from "../models/store.model";
 
 export class StoreService {
     
-    constructor(readonly bearer: string) {}
-    
-    
-    apiService = useMemo(() => new ApiService(this.bearer), [this.bearer]);
-    http = this.apiService.getAxiosInstance();
+    private apiService: ApiService;
+    private http: AxiosInstance;
+
+    constructor(readonly bearer: string) {
+        this.apiService = useMemo(() => new ApiService(this.bearer), [this.bearer]);
+        this.http = this.apiService.getAxiosInstance();
+    }
 
     /**
      * Returns all stores.

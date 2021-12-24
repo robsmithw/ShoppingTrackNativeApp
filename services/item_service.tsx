@@ -1,4 +1,4 @@
-import { AxiosResponse } from "axios";
+import { AxiosInstance, AxiosResponse } from "axios";
 import { useMemo } from "react";
 import IItem from "../models/item.model";
 import { createRoute } from "../utils/api_const";
@@ -6,11 +6,13 @@ import { ApiService } from "./apiService";
 
 export class ItemService {
 
-    constructor(readonly bearer: string) {}
+    private apiService: ApiService;
+    private http: AxiosInstance;
 
-
-    apiService = useMemo(() => new ApiService(this.bearer), [this.bearer]);
-    http = this.apiService.getAxiosInstance();
+    constructor(readonly bearer: string) {
+        this.apiService = useMemo(() => new ApiService(this.bearer), [this.bearer]);
+        this.http = this.apiService.getAxiosInstance();
+    }
 
     /**
      * Makes a GET request to API to get items for a specified user

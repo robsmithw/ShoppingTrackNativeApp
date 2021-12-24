@@ -10,6 +10,7 @@ import { StyledButton } from './styled_button';
 import { getAllPrices } from '../services/price_service';
 import { getAllStores } from '../services/store_service';
 import { deleteItem } from '../services/item_service';
+import { AxiosError } from 'axios';
 
 type Props = {
     navigation: ItemDetailsScreenNavigationProp,
@@ -82,9 +83,9 @@ const ItemDetailsComponent = ({ route, navigation }: Props) => {
                 })
                 setPreviousPrices(previous_prices)
             })
-            .catch((error) => {
+            .catch((error: AxiosError) => {
                 console.error(error);
-                createErrorAlert(error);
+                createErrorAlert(error.message);
             });
         }
         else{
@@ -113,9 +114,9 @@ const ItemDetailsComponent = ({ route, navigation }: Props) => {
         setStores([]);
         getAllStores()
         .then((json: IStore[]) => setStores(json))
-        .catch((error) => {
+        .catch((error: AxiosError) => {
             console.error(error);
-            createErrorAlert(error);
+            createErrorAlert(error.message);
         });
     }
     
@@ -152,11 +153,11 @@ const ItemDetailsComponent = ({ route, navigation }: Props) => {
                 { text: "OK", onPress: () => {
                         deleteItem(item)
                         .then((json: IItem) => {
-                            redirectToHome(navigation, currentUserId, currentStoreId);
+                            redirectToHome(navigation);
                         })
-                        .catch((error) => {
+                        .catch((error: AxiosError) => {
                             console.error(error);
-                            createErrorAlert(error);
+                            createErrorAlert(error.message);
                         });
                     }
                 }

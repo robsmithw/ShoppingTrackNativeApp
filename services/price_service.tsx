@@ -1,15 +1,17 @@
-import { AxiosResponse } from "axios";
+import { AxiosInstance, AxiosResponse } from "axios";
 import { useMemo } from "react";
 import { IPrice } from "../models/price.model";
 import { ApiService } from "./apiService";
 
 export class PriceService {
 
-    constructor(private readonly bearer: string) {}
+    private apiService: ApiService;
+    private http: AxiosInstance;
 
-
-    private apiService = useMemo(() => new ApiService(this.bearer), [this.bearer]);
-    private http = this.apiService.getAxiosInstance();
+    constructor(readonly bearer: string) {
+        this.apiService = useMemo(() => new ApiService(this.bearer), [this.bearer]);
+        this.http = this.apiService.getAxiosInstance();
+    }
 
     /**
      * 

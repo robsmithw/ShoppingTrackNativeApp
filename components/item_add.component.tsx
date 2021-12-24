@@ -12,6 +12,7 @@ import { StoreService } from '../services/store_service';
 import { ItemService } from '../services/item_service';
 import { UserContext } from '../contexts/user_context';
 import { PropContext } from '../contexts/prop_context';
+import { AxiosError } from 'axios';
 
 const styles = StyleSheet.create({
     btn: {
@@ -49,17 +50,17 @@ const ItemAddComponent = ({ route, navigation }: Props) => {
     let errorMessage: string = '';
 
     const renderStoresAndSetDefault = (store_id: number | undefined) => {
-        getAllStores()
-        .then((json: IStore[]) => {
-            setStores(json);
+        storeService.getAllStores()
+        .then((response) => {
+            setStores(response.data);
             if(!isUndefinedOrNull(store_id)){
                 setSelectedStoreId(Number(store_id));
-                setSelectedStore(getStoreNameById(json, Number(store_id)));
+                setSelectedStore(getStoreNameById(response.data, Number(store_id)));
             }
         })
-        .catch((error) => {
+        .catch((error: AxiosError) => {
             console.error(error);
-            createErrorAlert(error);
+            createErrorAlert(error.message);
         });
     }
 
@@ -70,13 +71,13 @@ const ItemAddComponent = ({ route, navigation }: Props) => {
             if(!itemAlreadyExist(itemToAdd.name)){
                 itemToAdd.user_Id = currentUserId;
                 itemToAdd.currentStoreId = selectedStoreId;
-                addItem(itemToAdd)
-                .then((json: IItem) => {
-                    redirectToHome(navigation, currentUserId, currentStoreId);
+                itemService.addItem(itemToAdd)
+                .then((response) => {
+                    redirectToHome(navigation);
                 })
-                .catch((error) => {
+                .catch((error: AxiosError) => {
                     console.error(error);
-                    createErrorAlert(error);
+                    createErrorAlert(error.message);
                 });
             }
             else{
@@ -87,11 +88,11 @@ const ItemAddComponent = ({ route, navigation }: Props) => {
     }
 
     const renderAllItems = (user_id: number) => {
-        getItemsForUser(user_id)
-        .then((json: IItem[]) => setItems(json))
-        .catch((error) => {
+        itemService.getItemsForUser(user_id)
+        .then((response) => setItems(response.data))
+        .catch((error: AxiosError) => {
             console.error(error);
-            createErrorAlert(error);
+            createErrorAlert(error.message);
         });
     }
 
