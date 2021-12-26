@@ -1,4 +1,5 @@
-import React, { useState, useRef, useLayoutEffect, useContext, useMemo } from 'react';
+import { AxiosError } from 'axios';
+import React, { useState, useRef, useContext, useMemo } from 'react';
 
 import { View, Text, StyleSheet } from "react-native";
 
@@ -82,7 +83,7 @@ const LoginComponent = ({ route, navigation }: Props) => {
             }
             redirectToStoreSelect(response.data)
         })
-        .catch(error => setPassword(''));
+        .catch((error: AxiosError) => {console.error(error); setPassword(''); });
     }
 
     const onSignupTextPress = () => {

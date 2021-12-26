@@ -10,7 +10,7 @@ export class StoreService {
     private http: AxiosInstance;
 
     constructor(readonly bearer: string) {
-        this.apiService = useMemo(() => new ApiService(this.bearer), [this.bearer]);
+        this.apiService = new ApiService(this.bearer);
         this.http = this.apiService.getAxiosInstance();
     }
 

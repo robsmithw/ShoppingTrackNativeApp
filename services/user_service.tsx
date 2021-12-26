@@ -1,15 +1,19 @@
 import { User, ILoginResponse, IUser } from "../models/user.model";
-import { AxiosResponse } from "axios";
+import { AxiosInstance, AxiosResponse } from "axios";
 import { useMemo } from "react";
 import { ApiService } from "./apiService";
 
 export class UserService {
 
-    constructor() {}
+    private apiService: ApiService;
+    private http: AxiosInstance;
+
+    constructor() {
+        this.apiService = new ApiService();
+        this.http = this.apiService.getAxiosInstance();
+    }
 
 
-    apiService = useMemo(() => new ApiService(), []);
-    http = this.apiService.getAxiosInstance();
 
     /**
      * Makes a POST request to API to attempt to login with specified credentials

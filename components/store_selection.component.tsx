@@ -9,6 +9,7 @@ import { store_images } from '../utils/store_images';
 import { StoreService } from '../services/store_service';
 import { UserContext } from '../contexts/user_context';
 import { PropContext } from '../contexts/prop_context';
+import { AxiosError } from 'axios';
 
 type Props = {
     navigation: StoreSelectionScreenNavigationProp,
@@ -120,9 +121,9 @@ const StoreSelectionComponent = ({ navigation }: Props) => {
     const renderAllStores = () => {
         storeService.getAllStores()
         .then((response) => setData(response.data))
-        .catch((error) => {
-            console.error(error);
-            createErrorAlert(error);
+        .catch((error: AxiosError) => {
+            console.error(error.request);
+            createErrorAlert(error.message);
         })
         .finally(() => setIsLoading(false));
     }

@@ -1,5 +1,6 @@
 import { API_BASE } from '@env'
 import axios, { AxiosInstance } from "axios";
+import 'react-native-get-random-values'; //has to be imported for uuid
 import { v4 as uuidv4 } from 'uuid';
 
 export class ApiService {
