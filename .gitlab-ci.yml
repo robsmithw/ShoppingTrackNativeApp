@@ -31,12 +31,12 @@ lint:code-formatter:
   script:
     - yarn code-formatter-check
 
-lint:types:
-  stage: lint
-  only:
-    - merge_requests
-  script:
-    - yarn types-check
+#lint:types:
+#  stage: lint
+#  only:
+#    - merge_requests
+#  script:
+#    - yarn types-check
 
 tests:unit:
   stage: test
