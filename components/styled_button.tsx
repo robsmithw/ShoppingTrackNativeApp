@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
-import { Text, View, Modal, TouchableHighlight, StyleSheet, GestureResponderEvent, StyleProp, NativeSyntheticEvent, NativeTouchEvent, ViewStyle } from 'react-native';
+import { Text, TouchableHighlight, StyleProp, NativeSyntheticEvent, NativeTouchEvent, ViewStyle } from 'react-native';
 
 export interface IStyledButtonProps {
     styles: StyleProp<ViewStyle>,
@@ -18,8 +18,5 @@ export const StyledButton = (props: IStyledButtonProps): JSX.Element => {
         >
             <Text style={{color: '#000', textAlign: 'center', fontSize: 20}}>{props.title}</Text>
         </TouchableHighlight>
-        // <View style={this.props.styles}>
-        //     <Button title={this.props.title} onPress={this.props.onPress} disabled={this.props.disabled}/>
-        // </View>
     );
 }
