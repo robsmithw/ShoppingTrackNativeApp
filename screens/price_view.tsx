@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableWithoutFeedback, Image, Alert } from "react-native";
-import { FloatingLabelInput } from 'react-native-floating-label-input';
 import NumberFormat from 'react-number-format';
 import { PropContext } from '../contexts/prop_context';
 import { UserContext } from '../contexts/user_context';
@@ -8,7 +7,6 @@ import IItem from '../models/item.model';
 import { PriceViewScreenNavigationProp, PriceViewScreenRouteProp } from '../models/navigation.model';
 import { IPrice } from '../models/price.model';
 import IStore from '../models/store.model';
-import { User } from '../models/user.model';
 import { PriceService } from '../services/price_service';
 import { StoreService } from '../services/store_service';
 import { createErrorAlert, formatString, isUndefinedOrNull } from '../utils/utils';

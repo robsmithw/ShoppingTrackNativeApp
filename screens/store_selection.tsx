@@ -1,11 +1,9 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { Text, SafeAreaView, View, FlatList, StyleSheet, Switch, TouchableWithoutFeedback, GestureResponderEvent, Image } from 'react-native';
+import { Text, SafeAreaView, View, FlatList, StyleSheet, Switch, TouchableWithoutFeedback, Image } from 'react-native';
 import IStore from '../models/store.model'
 import { redirectToHome, StoreSelectionScreenNavigationProp, StoreSelectionScreenRouteProp } from '../models/navigation.model';
-import { User } from '../models/user.model';
 import Toast from 'react-native-simple-toast';
 import { createErrorAlert } from '../utils/utils';
-import { store_images } from '../utils/store_images';
 import { StoreService } from '../services/store_service';
 import { UserContext } from '../contexts/user_context';
 import { PropContext } from '../contexts/prop_context';

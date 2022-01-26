@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, Platform, TouchableWithoutFeedback, Image } from "react-native";
+import { View, StyleSheet, TouchableWithoutFeedback, Image } from "react-native";
 import { Picker } from '@react-native-picker/picker';
-// import DatePicker from 'react-native-date-picker'
 import DateTimePicker, { Event } from '@react-native-community/datetimepicker';
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import { PriceAddScreenNavigationProp, PriceAddScreenRouteProp } from '../models/navigation.model';
-import { User } from '../models/user.model';
 import { createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utils/utils';
 import IStore from '../models/store.model';
-import { StyledButton } from './styled_button';
+import { StyledButton } from '../components/styled_button';
 import IItem from '../models/item.model';
 import { getAllStores } from '../services/store_service';
 import { AxiosError } from 'axios';

@@ -8,9 +8,7 @@
     ],
     "moduleResolution": "node",
     "noEmit": true,
-    "typeRoots": [
-      "./types"
-    ],
+    "types": ["jest", "node"],
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "strict": true

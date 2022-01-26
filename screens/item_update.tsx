@@ -1,16 +1,15 @@
 import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import IItem from '../models/item.model';
 import { ItemUpdateScreenNavigationProp, ItemUpdateScreenRouteProp, redirectToHome } from '../models/navigation.model';
 import IStore from '../models/store.model';
-import { User } from '../models/user.model';
 import { updateItem } from '../services/item_service';
 import { getAllStores } from '../services/store_service';
 import { convertPriceStringToNumber, createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utils/utils';
-import { StorePickList } from './store_pick_list.component';
-import { StyledButton } from './styled_button';
+import { StorePickList } from '../components/store_pick_list';
+import { StyledButton } from '../components/styled_button';
 
 type Props = {
     navigation: ItemUpdateScreenNavigationProp,
