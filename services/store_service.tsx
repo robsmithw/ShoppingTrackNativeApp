@@ -1,5 +1,4 @@
 import { AxiosInstance, AxiosResponse } from "axios";
-import { useMemo } from "react";
 import { ApiService } from "./apiService";
 import { createRoute } from "../utils/api_const";
 import IStore from "../models/store.model";

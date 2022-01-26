@@ -1,21 +1,16 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 
-import { FloatingLabelInput } from 'react-native-floating-label-input';
+import { Text, TextInput, SafeAreaView, View, FlatList, StyleSheet, TouchableWithoutFeedback, Button, Image } from 'react-native';
 
-import { Text, TextInput, SafeAreaView, View, FlatList, StyleSheet, Switch, TouchableWithoutFeedback, Button, Modal, TouchableHighlight, Image } from 'react-native';
-
-import IItem, {getDefaultItem, ISelectItem, IStoreSelectItems} from '../models/item.model';
+import IItem, { getDefaultItem } from '../models/item.model';
 import { ItemsScreenNavigationProp, ItemsScreenRouteProp, redirectToItemAdd, redirectToItemDetails } from '../models/navigation.model';
 import IStore from '../models/store.model';
 
-import { Picker } from '@react-native-picker/picker';
 import { ItemValue } from '@react-native-picker/picker/typings/Picker';
 
-import CheckBox from '@react-native-community/checkbox';
-
-import { convertPriceStringToNumber, createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utils/utils';
-import { FilterListModal } from './filter_list_modal';
-import { UpdatePriceModal } from './update_price_modal';
+import { convertPriceStringToNumber, createErrorAlert, getStoreIdByName, getStoreNameById } from '../utils/utils';
+import { FilterListModal } from '../components/filter_list_modal';
+import { UpdatePriceModal } from '../components/update_price_modal';
 import { ItemService } from '../services/item_service';
 import { UserContext } from '../contexts/user_context';
 import { PropContext } from '../contexts/prop_context';

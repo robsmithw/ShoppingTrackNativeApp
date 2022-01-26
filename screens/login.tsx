@@ -7,12 +7,12 @@ import { FloatingLabelInput } from 'react-native-floating-label-input';
 import { UserContext } from '../contexts/user_context';
 
 import { LoginScreenNavigationProp, LoginScreenRouteProp, redirectToSignUp, redirectToStoreSelection } from '../models/navigation.model';
-import { ILoginResponse, IUser, User } from '../models/user.model';
+import { ILoginResponse, User } from '../models/user.model';
 import { UserService } from '../services/user_service';
 
 
 import { createErrorAlert } from '../utils/utils';
-import { StyledButton } from './styled_button';
+import { StyledButton } from '../components/styled_button';
 
 type Props = {
     navigation: LoginScreenNavigationProp,

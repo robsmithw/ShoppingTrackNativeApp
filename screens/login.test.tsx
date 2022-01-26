@@ -1,7 +1,7 @@
 import React from "react";
 import renderer from "react-test-renderer";
 
-import Login from './login.component';
+import Login from './login';
 
 jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
 

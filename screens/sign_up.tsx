@@ -1,12 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, Button, StyleSheet } from "react-native";
+import React, { useMemo, useState } from 'react';
+import { View, Text, StyleSheet } from "react-native";
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import { redirectToLogin, SignUpScreenNavigationProp, SignUpScreenRouteProp } from '../models/navigation.model';
-import { IUser, User } from '../models/user.model';
-import Toast from 'react-native-simple-toast';
+import { User } from '../models/user.model';
 import { createErrorAlert } from '../utils/utils';
-import { TouchableHighlight } from 'react-native-gesture-handler';
-import { StyledButton } from './styled_button';
+import { StyledButton } from '../components/styled_button';
 import { UserService } from '../services/user_service';
 
 type Props = {

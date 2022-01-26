@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
-import { Text, View, Modal, TouchableHighlight, StyleSheet, GestureResponderEvent } from 'react-native';
+import { Text, View, Modal, TouchableHighlight, StyleSheet } from 'react-native';
 
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 
 import { ItemValue } from '@react-native-picker/picker/typings/Picker';
 
-import { StorePickList } from './store_pick_list.component';
+import { StorePickList } from './store_pick_list';
 import IStore from '../models/store.model';
 
 type Props = {

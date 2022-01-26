@@ -21,7 +21,7 @@ export class ApiService {
           config.headers['X-CorrelationId'] = uuidv4();
           
           if (this.bearer !== undefined){
-            config.headers['Authorization'] = this.bearer;
+            config.headers['Authorization'] = 'Bearer ' + this.bearer;
           }
         }
         return config;

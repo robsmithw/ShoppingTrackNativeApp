@@ -1,5 +1,4 @@
 import { AxiosInstance, AxiosResponse } from "axios";
-import { useMemo } from "react";
 import IItem from "../models/item.model";
 import { createRoute } from "../utils/api_const";
 import { ApiService } from "./apiService";
@@ -10,7 +9,7 @@ export class ItemService {
     private http: AxiosInstance;
 
     constructor(readonly bearer: string) {
-        this.apiService = useMemo(() => new ApiService(this.bearer), [this.bearer]);
+        this.apiService = new ApiService(this.bearer);
         this.http = this.apiService.getAxiosInstance();
     }
 

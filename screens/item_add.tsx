@@ -1,13 +1,12 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { Picker } from '@react-native-picker/picker';
-import { View, Text, Button, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import { ItemAddScreenNavigationProp, ItemAddScreenRouteProp, redirectToHome } from '../models/navigation.model';
 import IStore from '../models/store.model';
 import IItem, { getDefaultItem } from '../models/item.model';
 import { createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utils/utils';
-import { StorePickList } from './store_pick_list.component';
-import { StyledButton } from './styled_button';
+import { StorePickList } from '../components/store_pick_list';
+import { StyledButton } from '../components/styled_button';
 import { StoreService } from '../services/store_service';
 import { ItemService } from '../services/item_service';
 import { UserContext } from '../contexts/user_context';
