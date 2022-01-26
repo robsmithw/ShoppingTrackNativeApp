@@ -38,15 +38,15 @@ lint:code-formatter:
 #  script:
 #    - yarn types-check
 
-tests:unit:
-  stage: test
-  only:
-    - merge_requests
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^master/
-  script:
-    - yarn test
+#tests:unit:
+#  stage: test
+#  only:
+#    - merge_requests
+#  except:
+#    variables:
+#      - $CI_COMMIT_REF_NAME =~ /^master/
+#  script:
+#    - yarn test
 
 # tests:coverage:
 #   stage: test
