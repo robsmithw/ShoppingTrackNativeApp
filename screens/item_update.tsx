@@ -1,12 +1,14 @@
 import { AxiosError } from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet } from "react-native";
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import IItem from '../models/item.model';
 import { ItemUpdateScreenNavigationProp, ItemUpdateScreenRouteProp, redirectToHome } from '../models/navigation.model';
 import IStore from '../models/store.model';
-import { updateItem } from '../services/item_service';
-import { getAllStores } from '../services/store_service';
+import { ItemService } from '../services/item_service';
+import { StoreService } from '../services/store_service';
+import { UserContext } from '../contexts/user_context';
+import { PropContext } from '../contexts/prop_context';
 import { convertPriceStringToNumber, createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utils/utils';
 import { StorePickList } from '../components/store_pick_list';
 import { StyledButton } from '../components/styled_button';
@@ -29,7 +31,7 @@ const styles = StyleSheet.create({
     }
 });
 
-const ItemUpdateComponent = ({ route, navigation }: Props) => {
+const ItemUpdateComponent = ({ navigation }: Props) => {
 
     const [currentUserId, setCurrentUserId] = useState<number>(0);
     const [currentStoreId, setCurrentStoreId] = useState<number | undefined>(0);
@@ -40,10 +42,17 @@ const ItemUpdateComponent = ({ route, navigation }: Props) => {
     const [selectedStore, setSelectedStore] = useState<string>('none');
     const [selectedStoreId, setSelectedStoreId] = useState<number>(0);
 
+    const userContext = useContext(UserContext);
+    const propContext = useContext(PropContext);
+
+    const storeService = useMemo(() => new StoreService(userContext.accessToken), [userContext.accessToken]);
+    const itemService = useMemo(() => new ItemService(userContext.accessToken), [userContext.accessToken]);
+
     const getStores = (store_id: number | undefined) => {
         setStores([]);
-        getAllStores()
-        .then((json: IStore[]) => {
+        storeService.getAllStores()
+        .then((response) => {
+            const json = response.data;
             setStores(json);
             if(!isUndefinedOrNull(store_id)){
                 setSelectedStoreId(Number(store_id));
@@ -62,10 +71,10 @@ const ItemUpdateComponent = ({ route, navigation }: Props) => {
             item.name = newItemName;
             item.previous_Price = convertPriceStringToNumber(newPreviousPrice);
             item.currentStoreId = selectedStoreId;
-            updateItem(item)
-            .then((json: IItem) => {
-                setCurrentItem(json);
-                redirectToHome(navigation, currentUserId, Number(currentStoreId));
+            itemService.updateItem(item)
+            .then((response) => {
+                setCurrentItem(response.data);
+                redirectToHome(navigation);
             })
             .catch((error: AxiosError) => {
                 console.error(error);
@@ -76,12 +85,17 @@ const ItemUpdateComponent = ({ route, navigation }: Props) => {
     
 
     useEffect(() => {
-        setCurrentStoreId(route.params.store_id);
-        setCurrentUserId(route.params.user_id);
-        setCurrentItem(route.params.item);
-        setNewItemName(route.params.item != null ? route.params.item.name : '');
-        setNewPreviousPrice(route.params.item != null ? route.params.item.previous_Price.toString() : '');
-        getStores(route.params.store_id);
+        if (propContext.storeId !== null
+            && propContext.item !== null
+            && userContext.userId !== null)
+        {
+            setCurrentStoreId(propContext.storeId);
+            setCurrentUserId(userContext.userId);
+            setCurrentItem(propContext.item);
+            setNewItemName(propContext.item.name);
+            setNewPreviousPrice(propContext.item.previous_Price.toString());
+            getStores(propContext.storeId);
+        }
     }, []);
 
     return (
@@ -107,7 +121,7 @@ const ItemUpdateComponent = ({ route, navigation }: Props) => {
             <StorePickList 
                 stores={stores}
                 selectedStore={selectedStore}
-                onStoreChanged={(itemValue, itemIndex) => {
+                onStoreChanged={(itemValue, _) => {
                     setSelectedStore(itemValue.toString());
                     setSelectedStoreId(getStoreIdByName(stores, itemValue.toString()));
                 }}

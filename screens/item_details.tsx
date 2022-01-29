@@ -1,20 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Alert } from "react-native";
-import { ItemDetailsScreenNavigationProp, ItemDetailsScreenRouteProp, redirectToHome, redirectToItemUpdate, redirectToPriceAdd, redirectToPriceView } from '../models/navigation.model';
+import { ItemDetailsScreenNavigationProp, redirectToHome, redirectToItemUpdate, redirectToPriceAdd, redirectToPriceView } from '../models/navigation.model';
 import { IPrice } from '../models/price.model';
 import IItem, { getDefaultItem } from '../models/item.model';
 import NumberFormat from 'react-number-format';
 import { createErrorAlert, formatString, isUndefinedOrNull } from '../utils/utils';
 import IStore from '../models/store.model';
 import { StyledButton } from '../components/styled_button';
-import { getAllPrices } from '../services/price_service';
-import { getAllStores } from '../services/store_service';
-import { deleteItem } from '../services/item_service';
+import { PriceService } from '../services/price_service';
+import { StoreService } from '../services/store_service';
+import { ItemService } from '../services/item_service';
 import { AxiosError } from 'axios';
+import {UserContext} from '../contexts/user_context';
+import {PropContext} from '../contexts/prop_context';
 
 type Props = {
     navigation: ItemDetailsScreenNavigationProp,
-    route: ItemDetailsScreenRouteProp
 }
 
 interface IPriceProps {
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
     }
 });
 
-const ItemDetailsComponent = ({ route, navigation }: Props) => {
+const ItemDetailsComponent = ({ navigation }: Props) => {
 
     const [currentUserId, setCurrentUserId] = useState<number>(0);
     const [currentStoreId, setCurrentStoreId] = useState<number | undefined>(0);
@@ -42,6 +43,13 @@ const ItemDetailsComponent = ({ route, navigation }: Props) => {
     const [previousPrices, setPreviousPrices] = useState<IPrice[]>([]);
     const [nameFormatted, setNameFormatted] = useState<string>('');
     const [stores, setStores] = useState<IStore[]>([]);
+
+    const userContext = useContext(UserContext);
+    const propContext = useContext(PropContext);
+
+    const priceService = useMemo(() => new PriceService(userContext.accessToken), [userContext.accessToken]);
+    const storeService = useMemo(() => new StoreService(userContext.accessToken), [userContext.accessToken]);
+    const itemService = useMemo(() => new ItemService(userContext.accessToken), [userContext.accessToken]);
 
     const Price = ({ price }: IPriceProps): JSX.Element => {
         return (
@@ -69,9 +77,9 @@ const ItemDetailsComponent = ({ route, navigation }: Props) => {
         let previous_prices: IPrice[] = [];
         let cnt: number = 0;
         if (!isUndefinedOrNull(item_id)){
-            getAllPrices(item_id)
-            .then((json: IPrice[]) => {
-                json.forEach((price) => {
+            priceService.getAllPrices(item_id ?? 0)
+            .then((response) => {
+                response.data.forEach((price) => {
                     //only get first three price
                     if (cnt < 3) { 
                         previous_prices.push(price);
@@ -112,8 +120,8 @@ const ItemDetailsComponent = ({ route, navigation }: Props) => {
 
     const getStores = () => {
         setStores([]);
-        getAllStores()
-        .then((json: IStore[]) => setStores(json))
+        storeService.getAllStores()
+        .then((response) => setStores(response.data))
         .catch((error: AxiosError) => {
             console.error(error);
             createErrorAlert(error.message);
@@ -121,15 +129,15 @@ const ItemDetailsComponent = ({ route, navigation }: Props) => {
     }
     
     const redirectToUpdateItem = () => {
-        redirectToItemUpdate(navigation, currentUserId, currentStoreId, currentItem);
+        redirectToItemUpdate(navigation);
     }
 
     const redirectToAddPrice = () => {
-        redirectToPriceAdd(navigation, currentUserId, currentStoreId, currentItem);
+        redirectToPriceAdd(navigation);
     }
 
     const redirectToViewPrice = () => {
-        redirectToPriceView(navigation, currentUserId, currentStoreId, currentItem);
+        redirectToPriceView(navigation);
     }
 
     const confirmAndDeleteItem = () => {
@@ -151,8 +159,8 @@ const ItemDetailsComponent = ({ route, navigation }: Props) => {
                     style: "cancel"
                 },
                 { text: "OK", onPress: () => {
-                        deleteItem(item)
-                        .then((json: IItem) => {
+                        itemService.deleteItem(item)
+                        .then((_) => {
                             redirectToHome(navigation);
                         })
                         .catch((error: AxiosError) => {
@@ -167,12 +175,16 @@ const ItemDetailsComponent = ({ route, navigation }: Props) => {
     }
 
     useEffect( () => {
-        setCurrentStoreId(route.params.store_id);
-        setCurrentUserId(route.params.user_id);
-        setCurrentItem(route.params.item);
-        getPrices(route.params.item?.itemId);
-        getStores();
-        setFormattedStrings(route.params.item);
+        if (propContext.storeId !== null 
+            && userContext.userId !== null
+            && propContext.item !== null){
+            setCurrentStoreId(propContext.storeId);
+            setCurrentUserId(userContext.userId);
+            setCurrentItem(propContext.item);
+            getPrices(propContext.item.itemId);
+            getStores();
+            setFormattedStrings(propContext.item);
+        }
     }, []);
 
     return (
@@ -199,9 +211,9 @@ const ItemDetailsComponent = ({ route, navigation }: Props) => {
             <Text>No Previous Prices</Text>
             }
             <FlatList 
-            data={previousPrices}
-            renderItem={({item}) =>  <Price price={item}></Price>}
-            keyExtractor={(price, index) => price.id.toString()}
+                data={previousPrices}
+                renderItem={({item}) =>  <Price price={item}></Price>}
+                keyExtractor={(price, _) => price.id.toString()}
             />
             <StyledButton styles={styles.navBtn} title='Update Item' onPress={() => redirectToUpdateItem()} />
             <StyledButton styles={styles.navBtn} title='Delete Item' onPress={ () => confirmAndDeleteItem()} />

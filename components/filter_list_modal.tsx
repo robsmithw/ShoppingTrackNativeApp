@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Text, View, Modal, TouchableHighlight, StyleSheet } from 'react-native';
 
-import CheckBox from '@react-native-community/checkbox';
+import CheckBox from 'expo-checkbox';
 
 type Props = {
     isChecked: boolean,

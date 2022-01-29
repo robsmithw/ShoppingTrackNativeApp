@@ -30,7 +30,7 @@ export class ItemService {
      * @returns An array of items for the specified user & specified store
      */
     public getItemsForUserByStore = (store_id: number, user_id: number): Promise<AxiosResponse<Array<IItem>>> => {
-        const route = createRoute('Items/GetItemsByStoreId?storeId', [{paramName: 'storeId', value: store_id}, {paramName: 'userId', value: user_id}]);
+        const route = createRoute('Items/GetItemsByStoreId', [{paramName: 'storeId', value: store_id}, {paramName: 'userId', value: user_id}]);
         return this.http.get(route);
     }
 

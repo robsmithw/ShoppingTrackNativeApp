@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     }
 });
 
-const PriceViewComponent = ({ route, navigation }: Props) => {
+const PriceViewComponent = ({ navigation }: Props) => {
 
     const [currentUserId, setCurrentUserId] = useState<number>(0);
     const [currentStoreId, setCurrentStoreId] = useState<number | undefined>(0);

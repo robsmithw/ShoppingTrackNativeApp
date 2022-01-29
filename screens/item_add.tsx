@@ -29,7 +29,7 @@ type Props = {
     route: ItemAddScreenRouteProp
 }
 
-const ItemAddComponent = ({ route, navigation }: Props) => {
+const ItemAddComponent = ({ navigation }: Props) => {
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [currentUserId, setCurrentUserId] = useState<number>(0);
@@ -109,10 +109,12 @@ const ItemAddComponent = ({ route, navigation }: Props) => {
     }
 
     useEffect( () => {
-        setCurrentStoreId(route.params.store_id);
-        setCurrentUserId(route.params.user_id);
-        renderStoresAndSetDefault(route.params.store_id);
-        renderAllItems(route.params.user_id);
+        if (propContext.storeId !== null && userContext.userId !== null){
+            setCurrentStoreId(propContext.storeId);
+            setCurrentUserId(userContext.userId);
+            renderStoresAndSetDefault(propContext.storeId);
+            renderAllItems(userContext.userId);
+        }
     }, []);
 
     return (
@@ -131,7 +133,7 @@ const ItemAddComponent = ({ route, navigation }: Props) => {
             <StorePickList 
                 stores={stores}
                 selectedStore={selectedStore}
-                onStoreChanged={(itemValue, itemIndex) => {
+                onStoreChanged={(itemValue, _) => {
                     setSelectedStore(itemValue.toString());
                     setSelectedStoreId(getStoreIdByName(stores, itemValue.toString()));
                 }}

@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     }
 });
 
-const ItemsComponent = ({ route, navigation }: Props) => {
+const ItemsComponent = ({ navigation }: Props) => {
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [allItems, setAllItems] = useState<IItem[]>([]);
@@ -171,7 +171,10 @@ const ItemsComponent = ({ route, navigation }: Props) => {
     }
 
     const onItemSelected = (item: IItem) => {
-        redirectToItemDetails(navigation, userContext.userId, propContext.storeId, item);
+        if (propContext.setItem !== null){
+            propContext.setItem(item);
+        }
+        redirectToItemDetails(navigation);
     }
 
     const filterItemsDisplayed = (items: IItem[]) => {
@@ -188,10 +191,11 @@ const ItemsComponent = ({ route, navigation }: Props) => {
         // specific store selected
         if (user_id !== null){
             if (store_id !== null) {
-                itemService.getItemsForUserByStore(user_id, store_id)
+                itemService.getItemsForUserByStore(store_id, user_id)
                 .then((response) => {
                     setAllItems(response.data);
                     filterItemsDisplayed(response.data);
+                    console.log(response);
                 })
                 .catch((error) => {
                     console.error(error);
@@ -268,7 +272,7 @@ const ItemsComponent = ({ route, navigation }: Props) => {
     }
 
     const navigateToAddItem = () => {
-        redirectToItemAdd(navigation, userContext.userId, propContext.storeId);
+        redirectToItemAdd(navigation);
     }
 
     useEffect( () => {
