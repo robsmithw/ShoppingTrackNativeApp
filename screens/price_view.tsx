@@ -136,11 +136,16 @@ const PriceViewComponent = ({ navigation }: Props) => {
     }
 
     useEffect( () => {
-        setCurrentStoreId(route.params.store_id);
-        setCurrentUserId(route.params.user_id);
-        setCurrentItem(route.params.item);
-        getStores();
-        renderAllPrices(route.params.item?.itemId);
+        if (propContext.storeId !== null 
+            && userContext.userId !== null
+            && propContext.item !== null)
+        {
+            setCurrentStoreId(propContext.storeId);
+            setCurrentUserId(userContext.userId);
+            setCurrentItem(propContext.item);
+            getStores();
+            renderAllPrices(propContext.item.itemId);
+        }
     }, []);
 
     return (
@@ -148,7 +153,7 @@ const PriceViewComponent = ({ navigation }: Props) => {
             <FlatList 
               data={data}
               renderItem={({item}) =>  <Price price={item}></Price>}
-              keyExtractor={(item, index) => item.id.toString()}
+              keyExtractor={(item, _) => item.id.toString()}
             />
         </View>
     );
