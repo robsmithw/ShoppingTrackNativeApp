@@ -1,4 +1,4 @@
-name: lint
+name: Linting
 
 on: [pull_request]
 
@@ -7,7 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     container: node
     steps:
+    - name: Checkout
       uses: actions/checkout@v1
+    - name: Lint
       run: |
         yarn
         yarn lint
@@ -16,7 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     container: node
     steps:
+    - name: Checkout
       uses: actions/checkout@v1
+    - name: Code-Formatting-Check
       run: |
         yarn
         yarn code-formatter-check
