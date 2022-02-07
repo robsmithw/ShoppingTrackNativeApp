@@ -1,35 +1,35 @@
-image: node
+#image: node
 
-stages:
-  - lint
+#stages:
+#  - lint
   # - test
   # - publish
 
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - node_modules/
+  #cache:
+  #key: ${CI_COMMIT_REF_SLUG}
+  #paths:
+  #  - node_modules/
 
-variables:
-  DOCKER_DRIVER: overlay2
+  #variables:
+  #DOCKER_DRIVER: overlay2
 
-before_script:
+  #before_script:
   #- yarn generate-dotenv
-  - yarn
+  #- yarn
 
-lint:
-  stage: lint
-  only:
-    - merge_requests
-  script:
-    - yarn lint
+  #lint:
+  #stage: lint
+  #only:
+  #  - merge_requests
+  #script:
+  #  - yarn lint
 
-lint:code-formatter:
-  stage: lint
-  only:
-    - merge_requests
-  script:
-    - yarn code-formatter-check
+  #lint:code-formatter:
+  #stage: lint
+  #only:
+  #  - merge_requests
+  #script:
+  #  - yarn code-formatter-check
 
 #lint:types:
 #  stage: lint

@@ -1,18 +1,22 @@
 name: lint
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     container: node
     steps:
-      - run: yarn
-      - run: yarn lint
+      uses: actions/checkout@v1
+      run: |
+        yarn
+        yarn lint
 
   lint_code_formatter:
     runs-on: ubuntu-latest
     container: node
     steps:
-      - run: yarn
-      - run: yarn code-formatter-check
+      uses: actions/checkout@v1
+      run: |
+        yarn
+        yarn code-formatter-check
