@@ -4,13 +4,15 @@ on: [push, pull_request]
 
 jobs:
   lint:
-    runs-on: node:latest
+    runs-on: ubuntu:latest
+    container: node
     steps:
       - run: yarn
       - run: yarn lint
 
   lint_code_formatter:
-    runs-on: node:latest
+    runs-on: ubuntu:latest
+    container: node
     steps:
       - run: yarn
       - run: yarn code-formatter-check
