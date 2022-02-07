@@ -1,0 +1,16 @@
+name: lint
+
+on: [pull_request]
+
+jobs:
+  lint:
+    container: node
+    steps:
+      - run: yarn
+      - run: yarn lint
+
+  lint_code_formatter:
+    container: node
+    steps:
+      - run: yarn
+      - run: yarn code-formatter-check
