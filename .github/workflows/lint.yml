@@ -14,20 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     container: node
     steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-    - name: Code-Formatting-Check
-      run: |
-        yarn
-        yarn code-formatter-check
+    - uses: actions/checkout@v2
+    - uses: ./.github/actions/yarn
+    - run: yarn code-formatter-check
     
   lint_types:
     runs-on: ubuntu-latest
     container: node
     steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-    - name: Lint-types
-      run: |
-        yarn
-        yarn types-check
+    - uses: actions/checkout@v2
+    - uses: ./.github/actions/yarn
+    - run: yarn types-check
