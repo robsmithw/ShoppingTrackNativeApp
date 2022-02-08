@@ -1,18 +1,15 @@
-name: Linting
+name: Github Actions CI
 
 on: [pull_request]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
-    container: node
     steps:
-    - name: Checkout
-      uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Lint
-      run: |
-        yarn
-        yarn lint
+      uses: ./.github/actions/yarn
+      run: yarn lint
 
   lint_code_formatter:
     runs-on: ubuntu-latest
@@ -24,3 +21,14 @@ jobs:
       run: |
         yarn
         yarn code-formatter-check
+    
+  lint_types:
+    runs-on: ubuntu-latest
+    container: node
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Lint-types
+      run: |
+        yarn
+        yarn types-check
