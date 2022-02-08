@@ -18,10 +18,10 @@ jobs:
     - uses: ./.github/actions/yarn
     - run: yarn code-formatter-check
     
-  lint_types:
-    runs-on: ubuntu-latest
-    container: node
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ./.github/actions/yarn
-    - run: yarn types-check
+  # lint_types:
+  #   runs-on: ubuntu-latest
+  #   container: node
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - uses: ./.github/actions/yarn
+  #   - run: yarn types-check
