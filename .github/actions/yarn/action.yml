@@ -8,5 +8,6 @@ runs:
       with:
         node-version: 14
     - name: Install dependencies
+      shell: bash
       run: yarn
   
