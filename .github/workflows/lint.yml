@@ -12,7 +12,6 @@ jobs:
 
   lint_code_formatter:
     runs-on: ubuntu-latest
-    container: node
     steps:
     - uses: actions/checkout@v2
     - uses: ./.github/actions/yarn
