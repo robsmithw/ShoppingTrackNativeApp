@@ -28,7 +28,7 @@ export class StoreService {
      * @param user_id - The user's id
      * @returns The result of a get request to the endpoint `Stores/GetStoresWithItemsByUser?userId={user_id}`
      */
-    public getStoresWithItemsByUser = (user_id: number): Promise<AxiosResponse<Array<IStore>>> => {
+    public getStoresWithItemsByUser = (user_id: string): Promise<AxiosResponse<Array<IStore>>> => {
         const route = createRoute('Stores/GetStoresWithItemsByUser', [{paramName: 'userId', value: user_id}]);
         return this.http.get(route);
     }

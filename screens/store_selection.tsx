@@ -48,7 +48,7 @@ const StoreSelectionComponent = ({ navigation }: Props) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [data, setData] = useState<IStore[]>([]);
     const [isEnabled, setIsEnabled] = useState<boolean>(true);
-    const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
     const userContext = useContext(UserContext);
     const propContext = useContext(PropContext);
@@ -74,28 +74,30 @@ const StoreSelectionComponent = ({ navigation }: Props) => {
     }
 
     const requireStorePicture = (store: IStore) => {
-        if (store.pictureFileName != null){
-            switch(store.name){
-                case "Walmart":
-                    return require('../assets/walmart.png');
-            }
+        // This is done because you cannot use require with a dynamic variable
+        // So any store that has an image, should have a specific case in here
+        switch(store.name){
+            case "Walmart":
+                return require('../assets/walmart.png');
+            default:
+                return require('../assets/unknown.png');
         }
-        return require('../assets/unknown.png');
     }
 
     const onStorePress = (store: IStore) => {
         if (propContext.setStoreId !== null){
-            propContext.setStoreId(store.storeId);
+            propContext.setStoreId(store.id);
         }
         redirectToHome(navigation);
     }
 
-    const toggleSwitch = () => {
-        renderStoreList(!isEnabled);
-        setIsEnabled(previousState => !previousState);
+    const toggleSwitch = (newValue: boolean) => {
+        renderStoreList(!newValue);
+        setIsEnabled(newValue);
     }
 
     const renderStoreList = (withItems: boolean) => {
+        setIsLoading(true);
         if (withItems) {
             renderStoresWithItems();
         }
@@ -138,17 +140,17 @@ const StoreSelectionComponent = ({ navigation }: Props) => {
             <View style={styles.switchRow}>
                 <Text>Show all Stores?</Text>
                 <Switch 
-                onValueChange={toggleSwitch}
-                value={isEnabled}
+                    onValueChange={toggleSwitch}
+                    value={isEnabled}
                 />
             </View>
             {isLoading ? 
             <Text>Loading...</Text> : 
             <FlatList 
-            numColumns={3}
-            data={data}
-            renderItem={({item}) =>  <Store store={item}></Store>}
-            keyExtractor={(item, index) => item.storeId.toString()}
+                numColumns={3}
+                data={data}
+                renderItem={({item}) =>  <Store store={item}></Store>}
+                keyExtractor={(item, index) => item.id.toString()}
            />
             }
             

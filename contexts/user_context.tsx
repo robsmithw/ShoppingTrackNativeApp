@@ -5,8 +5,8 @@ type UserContextType = {
     isAuthenticated: () => boolean,
     accessToken: string,
     setAccessToken: React.Dispatch<React.SetStateAction<string>>,
-    userId: number | null,
-    setUserId: React.Dispatch<React.SetStateAction<number | null>> | null
+    userId: string | null,
+    setUserId: React.Dispatch<React.SetStateAction<string | null>> | null
 
 }
 
@@ -21,7 +21,7 @@ export const UserContext = React.createContext<UserContextType>({
 export const UserProvider: React.FC = ({children}) => {
 
     const [accessToken, setAccessToken] = useState<string>("");
-    const [userId, setUserId] = useState<number | null>(null);
+    const [userId, setUserId] = useState<string | null>(null);
 
     const isAuthenticated = (): boolean => {
         return !isUndefinedOrNull(accessToken);

@@ -30,12 +30,8 @@ const styles = StyleSheet.create({
 
 const PriceAddComponent = ({ navigation }: Props) => {
 
-    const [currentUserId, setCurrentUserId] = useState<number>(0);
-    const [currentStoreId, setCurrentStoreId] = useState<number | undefined>(0);
-    const [currentItem, setCurrentItem] = useState<IItem>();
     const [stores, setStores] = useState<IStore[]>([]);
     const [selectedStore, setSelectedStore] = useState<string>('none');
-    const [selectedStoreId, setSelectedStoreId] = useState<number>(0);
     const [newPrice, setNewPrice] = useState<string>('');
     const [dateOfPrice, setDateOfPrice] = useState<Date>(new Date);
     const [mode, setMode] = useState<Mode>('date');
@@ -53,7 +49,6 @@ const PriceAddComponent = ({ navigation }: Props) => {
                 style={{height: 50, width: 150}}
                 onValueChange={(itemValue, itemIndex) => {
                     setSelectedStore(itemValue.toString());
-                    setSelectedStoreId(getStoreIdByName(stores, itemValue.toString()));
                 }}
             >
                 <Picker.Item label='None' value='none' />
@@ -66,14 +61,13 @@ const PriceAddComponent = ({ navigation }: Props) => {
         );
     }
 
-    const renderStoresAndSetDefault = (store_id: number | undefined) => {
+    const renderStoresAndSetDefault = (store_id: string | undefined) => {
         storeService.getAllStores()
         .then((response) => {
             const json = response.data;
             setStores(json);
-            if(!isUndefinedOrNull(store_id)){
-                setSelectedStoreId(Number(store_id));
-                setSelectedStore(getStoreNameById(json, Number(store_id)));
+            if(store_id !== undefined){
+                setSelectedStore(getStoreNameById(json, store_id));
             }
         })
         .catch((error: AxiosError) => {
@@ -119,9 +113,6 @@ const PriceAddComponent = ({ navigation }: Props) => {
             && userContext.userId !== null
             && propContext.item !== null)
         {
-            setCurrentStoreId(propContext.storeId);
-            setCurrentUserId(userContext.userId);
-            setCurrentItem(propContext.item);
             renderStoresAndSetDefault(propContext.storeId);
         }
     }, []);

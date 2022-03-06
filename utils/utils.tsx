@@ -2,6 +2,8 @@ import { Alert } from "react-native";
 
 import IStore from "../models/store.model";
 
+import { NIL as emptyGuid } from "uuid";
+
 
 export function isUndefinedOrNull<T>(value: T): boolean {
     if(value == null){
@@ -19,14 +21,14 @@ export function isUndefinedOrNull<T>(value: T): boolean {
     return false;
 }
 
-export const getStoreNameById = (stores: IStore[], store_id: number): string => {
+export const getStoreNameById = (stores: IStore[], store_id: string): string => {
     //default in case of null, undefined, or no match
     let store_name: string = "none";
 
     if(!isUndefinedOrNull(stores)){
         stores.forEach(
             (store: IStore) => {
-                if (store.storeId == store_id){
+                if (store.id == store_id){
                     store_name = store.name;
                 }
             }
@@ -36,14 +38,14 @@ export const getStoreNameById = (stores: IStore[], store_id: number): string => 
     return store_name;
 }
 
-export const getStoreIdByName = (stores: IStore[], store_name: string): number => {
-    let store_id: number = 0;
+export const getStoreIdByName = (stores: IStore[], store_name: string): string => {
+    let store_id: string = emptyGuid;
 
     if(!isUndefinedOrNull(stores)){
         stores.forEach(
             (store: IStore) => {
                 if (store.name == store_name){
-                    store_id = store.storeId;
+                    store_id = store.id;
                 }
             }
         )
@@ -72,7 +74,7 @@ export const formatString = (type: string, toFormat: any, stores?: IStore[]): st
         }
         else{
             if (stores != undefined){
-                stringToDisplay = `Store: ${getStoreNameById(stores, Number(toFormat))}`;
+                stringToDisplay = `Store: ${getStoreNameById(stores, toFormat)}`;
             }
             else{
                 stringToDisplay = `Store: Error displaying store.`;
@@ -89,7 +91,7 @@ export const formatString = (type: string, toFormat: any, stores?: IStore[]): st
         }
         else{
             if (stores != undefined){
-                stringToDisplay = `${store_type}: ${getStoreNameById(stores, Number(toFormat))}`;
+                stringToDisplay = `${store_type}: ${getStoreNameById(stores, toFormat)}`;
             }
             else{
                 stringToDisplay = `${store_type}: Error displaying store.`;

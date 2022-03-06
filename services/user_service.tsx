@@ -17,6 +17,7 @@ export class UserService {
 
     /**
      * Makes a POST request to API to attempt to login with specified credentials
+     * 
      * @param attempted_login Specified credentials to attempt to sign in with
      * @returns The login response with access token and userId
      */
@@ -26,6 +27,7 @@ export class UserService {
     
     /**
      * Makes a POST request to API to attempt to register a user with specified credentials
+     * 
      * @param register_user Specified credentials to attempt to register a user with
      * @returns The User if the request succeeds
      */

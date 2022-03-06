@@ -37,8 +37,6 @@ const styles = StyleSheet.create({
 
 const ItemDetailsComponent = ({ navigation }: Props) => {
 
-    const [currentUserId, setCurrentUserId] = useState<number>(0);
-    const [currentStoreId, setCurrentStoreId] = useState<number | undefined>(0);
     const [currentItem, setCurrentItem] = useState<IItem>();
     const [previousPrices, setPreviousPrices] = useState<IPrice[]>([]);
     const [nameFormatted, setNameFormatted] = useState<string>('');
@@ -55,10 +53,10 @@ const ItemDetailsComponent = ({ navigation }: Props) => {
         return (
             //May set this to a different color to better distiguish
             <View> 
-                { !isUndefinedOrNull(price.price) 
-                &&  price.price !== 0 ?
+                { !isUndefinedOrNull(price.currentPrice) 
+                &&  price.currentPrice !== 0 ?
                 <NumberFormat 
-                    value={price.price} 
+                    value={price.currentPrice} 
                     displayType={'text'} 
                     thousandSeparator={true} 
                     prefix={'$'} 
@@ -73,28 +71,28 @@ const ItemDetailsComponent = ({ navigation }: Props) => {
         )
     }
 
-    const getPrices = (item_id: number | undefined) => {
+    const getPrices = (item_id: string) => {
         let previous_prices: IPrice[] = [];
         let cnt: number = 0;
         if (!isUndefinedOrNull(item_id)){
-            priceService.getAllPrices(item_id ?? 0)
-            .then((response) => {
-                response.data.forEach((price) => {
-                    //only get first three price
-                    if (cnt < 3) { 
-                        previous_prices.push(price);
-                    }
-                    if (cnt > 3) {
-                        return;
-                    }
-                    cnt++;
+            priceService.getAllPrices(item_id)
+                .then((response) => {
+                    response.data.forEach((price) => {
+                        //only get first three price
+                        if (cnt < 3) { 
+                            previous_prices.push(price);
+                        }
+                        if (cnt > 3) {
+                            return;
+                        }
+                        cnt++;
+                    })
+                    setPreviousPrices(previous_prices)
                 })
-                setPreviousPrices(previous_prices)
-            })
-            .catch((error: AxiosError) => {
-                console.error(error);
-                createErrorAlert(error.message);
-            });
+                .catch((error: AxiosError) => {
+                    console.error(error);
+                    createErrorAlert(error.message);
+                });
         }
         else{
             console.error("Item id recieved was null.");
@@ -178,10 +176,8 @@ const ItemDetailsComponent = ({ navigation }: Props) => {
         if (propContext.storeId !== null 
             && userContext.userId !== null
             && propContext.item !== null){
-            setCurrentStoreId(propContext.storeId);
-            setCurrentUserId(userContext.userId);
             setCurrentItem(propContext.item);
-            getPrices(propContext.item.itemId);
+            getPrices(propContext.item.id);
             getStores();
             setFormattedStrings(propContext.item);
         }
@@ -191,10 +187,10 @@ const ItemDetailsComponent = ({ navigation }: Props) => {
         <View>
             <Text>Item Details</Text>
             <Text>{nameFormatted}</Text>
-            { !isUndefinedOrNull(currentItem?.previous_Price) 
-            &&  currentItem?.previous_Price !== 0 ?
+            { !isUndefinedOrNull(currentItem?.previousPrice) 
+            &&  currentItem?.previousPrice !== 0 ?
             <NumberFormat 
-                value={currentItem?.previous_Price} 
+                value={currentItem?.previousPrice} 
                 displayType={'text'} 
                 thousandSeparator={true} 
                 prefix={'$'} 
@@ -203,7 +199,7 @@ const ItemDetailsComponent = ({ navigation }: Props) => {
             :
             <Text>Previous Price: There was no previous price specified.</Text>
             }
-            <Text>{formatString('previous_store', currentItem?.last_Store_Id, stores)}</Text>
+            <Text>{formatString('previous_store', currentItem?.lastStoreId, stores)}</Text>
             <Text>{formatString('current_store', currentItem?.currentStoreId, stores)}</Text>
             { previousPrices.length > 0 ?
             <Text>Previous Prices:</Text>

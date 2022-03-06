@@ -1,24 +1,42 @@
-interface IItem {
-    itemId: number,
-    user_Id: number,
+import { v4 as uuid, NIL as emptyGuid } from "uuid";
+
+interface IItem extends IEntity {
+    userId: string,
     name: string,
-    previous_Price: number,
-    last_Store_Id: number,
-    deleted: boolean,
+    previousPrice: number,
+    lastStoreId: string,
     purchased: boolean,
-    currentStoreId: number
+    currentStoreId: string
+}
+
+export class Item implements IItem {
+    public id: string = uuid();
+    public userId: string;
+    public name: string;
+    public previousPrice: number;
+    public lastStoreId: string;
+    public purchased: boolean = false;
+    public currentStoreId: string;
+    public createdDate: Date = new Date();
+    public modifiedDate?: Date | undefined;
+    public isDeleted: boolean = false;
+
+    constructor(name: string, user_id: string, previous_price: number, last_store_id: string, current_store_id: string) {
+        this.userId = user_id;
+        this.name = name;
+        this.previousPrice = previous_price;
+        this.lastStoreId = last_store_id;
+        this.currentStoreId = current_store_id;
+    }
 }
 
 export default IItem;
 
-export const getDefaultItem = (): IItem => {
-    return { itemId: 0, user_Id: 0, name: '',
-     previous_Price: 0, last_Store_Id: 0, 
-     deleted: false, purchased: false, 
-     currentStoreId: 0 }
+export const getDefaultItem = (): Item => {
+    return new Item('', emptyGuid, 0, emptyGuid, emptyGuid);
 }
 
-export class ISelectItem {
+export class SelectItem {
     public label: string;
     public value: string;
     public icon?: JSX.Element;
@@ -32,8 +50,8 @@ export class ISelectItem {
     }
 }
 
-export class IStoreSelectItems {
-    public storeSelect: ISelectItem[];
+export class StoreSelectItems {
+    public storeSelect: SelectItem[];
 
     constructor(){
         this.storeSelect = [];

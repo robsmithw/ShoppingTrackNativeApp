@@ -1,6 +1,11 @@
-export class User {
+import { v4 as uuid, NIL as emptyGuid } from "uuid";
+
+export class User implements IUser {
+    public id: string = uuid();
+    public createdDate: Date = new Date();
+    public modifiedDate?: Date | undefined;
+    public isDeleted: boolean = false;
     public username: string;
-    public user_Id: number;
     public email: string;
     public password: string;
     public admin: boolean;
@@ -10,15 +15,13 @@ export class User {
         this.username = username || "";
         this.email = email || "";
         this.password = password || "";
-        this.user_Id = 0;
         this.admin = false;
         this.validated = false;
     }
 }
 
-export interface IUser {
+export interface IUser extends IEntity {
     username: string,
-    user_Id: number,
     email: string,
     password: string,
     admin: boolean,
@@ -27,5 +30,5 @@ export interface IUser {
 
 export interface ILoginResponse {
     accessToken: string
-    userId: number | null
+    userId: string | null
 }
