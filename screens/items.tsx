@@ -163,7 +163,7 @@ const ItemsComponent = ({ navigation }: Props) => {
 
     const openModalWithDefaults = (item: IItem, purchased: boolean) => {
         item.purchased = purchased;
-        setPricePaid(item.previous_Price.toString());
+        setPricePaid(item.previousPrice.toString());
         let storeName: string = getStoreNameById(stores, item.currentStoreId);
         setSelectedStore(storeName);
         setItemToUpdate(item);
@@ -187,7 +187,7 @@ const ItemsComponent = ({ navigation }: Props) => {
         setItemsDisplayed(items);
     }
 
-    const getItems = (user_id: number | null, store_id: number | null) => {
+    const getItems = (user_id: string | null, store_id: string | null) => {
         // specific store selected
         if (user_id !== null){
             if (store_id !== null) {
@@ -195,7 +195,6 @@ const ItemsComponent = ({ navigation }: Props) => {
                 .then((response) => {
                     setAllItems(response.data);
                     filterItemsDisplayed(response.data);
-                    console.log(response);
                 })
                 .catch((error) => {
                     console.error(error);
@@ -251,8 +250,8 @@ const ItemsComponent = ({ navigation }: Props) => {
     const updatePreviousPrice = () => {
         let item: IItem = itemToUpdate;
         if (item != getDefaultItem()){
-            item.previous_Price = convertPriceStringToNumber(pricePaid);
-            item.last_Store_Id = getStoreIdByName(stores, selectedStore);
+            item.previousPrice = convertPriceStringToNumber(pricePaid);
+            item.lastStoreId = getStoreIdByName(stores, selectedStore);
             itemService.updateItem(item)
             .then((response) => {})
             .catch((error) => {
@@ -327,7 +326,7 @@ const ItemsComponent = ({ navigation }: Props) => {
             <FlatList 
               data={itemsDisplayed}
               renderItem={({item}) =>  <Item item={item}></Item>}
-              keyExtractor={(item: IItem, index: number) => item.itemId.toString()}
+              keyExtractor={(item: IItem, index: number) => item.id.toString()}
             />
             }
             <UpdatePriceModal 

@@ -12,6 +12,7 @@ import { PropContext } from '../contexts/prop_context';
 import { convertPriceStringToNumber, createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utils/utils';
 import { StorePickList } from '../components/store_pick_list';
 import { StyledButton } from '../components/styled_button';
+import { NIL as emptyGuid } from "uuid";
 
 type Props = {
     navigation: ItemUpdateScreenNavigationProp,
@@ -33,14 +34,12 @@ const styles = StyleSheet.create({
 
 const ItemUpdateComponent = ({ navigation }: Props) => {
 
-    const [currentUserId, setCurrentUserId] = useState<number>(0);
-    const [currentStoreId, setCurrentStoreId] = useState<number | undefined>(0);
     const [currentItem, setCurrentItem] = useState<IItem>();
     const [stores, setStores] = useState<IStore[]>([]);
     const [newItemName, setNewItemName] = useState<string>('');
     const [newPreviousPrice, setNewPreviousPrice] = useState<string>('');
     const [selectedStore, setSelectedStore] = useState<string>('none');
-    const [selectedStoreId, setSelectedStoreId] = useState<number>(0);
+    const [selectedStoreId, setSelectedStoreId] = useState<string>(emptyGuid);
 
     const userContext = useContext(UserContext);
     const propContext = useContext(PropContext);
@@ -48,15 +47,15 @@ const ItemUpdateComponent = ({ navigation }: Props) => {
     const storeService = useMemo(() => new StoreService(userContext.accessToken), [userContext.accessToken]);
     const itemService = useMemo(() => new ItemService(userContext.accessToken), [userContext.accessToken]);
 
-    const getStores = (store_id: number | undefined) => {
+    const getStores = (store_id: string) => {
         setStores([]);
         storeService.getAllStores()
         .then((response) => {
             const json = response.data;
             setStores(json);
             if(!isUndefinedOrNull(store_id)){
-                setSelectedStoreId(Number(store_id));
-                setSelectedStore(getStoreNameById(json, Number(store_id)));
+                setSelectedStoreId(store_id);
+                setSelectedStore(getStoreNameById(json, store_id));
             }    
         })
         .catch((error: AxiosError) => {
@@ -69,7 +68,7 @@ const ItemUpdateComponent = ({ navigation }: Props) => {
         let item: IItem | undefined = currentItem;
         if (!isUndefinedOrNull(item) && item != undefined){
             item.name = newItemName;
-            item.previous_Price = convertPriceStringToNumber(newPreviousPrice);
+            item.previousPrice = convertPriceStringToNumber(newPreviousPrice);
             item.currentStoreId = selectedStoreId;
             itemService.updateItem(item)
             .then((response) => {
@@ -89,11 +88,9 @@ const ItemUpdateComponent = ({ navigation }: Props) => {
             && propContext.item !== null
             && userContext.userId !== null)
         {
-            setCurrentStoreId(propContext.storeId);
-            setCurrentUserId(userContext.userId);
             setCurrentItem(propContext.item);
             setNewItemName(propContext.item.name);
-            setNewPreviousPrice(propContext.item.previous_Price.toString());
+            setNewPreviousPrice(propContext.item.previousPrice.toString());
             getStores(propContext.storeId);
         }
     }, []);

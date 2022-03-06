@@ -67,48 +67,55 @@ const styles = StyleSheet.create({
   },
 });
 
-export const UpdatePriceModal = (props: Props): JSX.Element => {
+export const UpdatePriceModal = ({ isModalVisible,
+    onModalRequestClose,
+    pricePaid,
+    onPricePaidChanged, 
+    selectedStore, 
+    onStoreChanged, 
+    stores, 
+    onUpdatePriceClicked }: Props): JSX.Element => {
     return(
         <Modal
           animationType='slide'
           transparent={true}
-          visible={props.isModalVisible}
-          onRequestClose={() => {props.onModalRequestClose}}
+          visible={isModalVisible}
+          onRequestClose={() => onModalRequestClose}
         >
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
                     <FloatingLabelInput
                       label={'Price Paid'}
-                      value={props.pricePaid}
+                      value={pricePaid}
                       maskType='currency'
                       currencyDivider=',' 
                       keyboardType='numeric'
-                      onChangeText={props.onPricePaidChanged}
+                      onChangeText={onPricePaidChanged}
                     />
 
                     <FloatingLabelInput
                       label={'Store with Price'}
-                      value={props.selectedStore?.toString()}
+                      value={selectedStore?.toString()}
                       editable={false}
                     />
                     <StorePickList 
-                        onStoreChanged={props.onStoreChanged} 
-                        selectedStore={props.selectedStore} 
-                        stores={props.stores}
+                        onStoreChanged={onStoreChanged} 
+                        selectedStore={selectedStore} 
+                        stores={stores}
                     />
 
                     <Text>Would you like to update the price paid for this item?</Text>
 
                     <TouchableHighlight
                       style={{ ...styles.openButton, backgroundColor: '#85bb65' }}
-                      onPress={props.onUpdatePriceClicked}
+                      onPress={onUpdatePriceClicked}
                     >
                     <Text style={styles.textStyle}>Yes</Text>
                     </TouchableHighlight>
 
                     <TouchableHighlight
                       style={{ ...styles.openButton, backgroundColor: '#85bb65' }}
-                      onPress={props.onModalRequestClose}
+                      onPress={onModalRequestClose}
                     >
                     <Text style={styles.textStyle}>No</Text>
                     </TouchableHighlight>

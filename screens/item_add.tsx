@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native";
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import { ItemAddScreenNavigationProp, ItemAddScreenRouteProp, redirectToHome } from '../models/navigation.model';
 import IStore from '../models/store.model';
-import IItem, { getDefaultItem } from '../models/item.model';
+import IItem, { getDefaultItem, Item } from '../models/item.model';
 import { createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utils/utils';
 import { StorePickList } from '../components/store_pick_list';
 import { StyledButton } from '../components/styled_button';
@@ -12,6 +12,7 @@ import { ItemService } from '../services/item_service';
 import { UserContext } from '../contexts/user_context';
 import { PropContext } from '../contexts/prop_context';
 import { AxiosError } from 'axios';
+import { NIL as emptyGuid } from "uuid";
 
 const styles = StyleSheet.create({
     btn: {
@@ -32,13 +33,13 @@ type Props = {
 const ItemAddComponent = ({ navigation }: Props) => {
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [currentUserId, setCurrentUserId] = useState<number>(0);
-    const [currentStoreId, setCurrentStoreId] = useState<number | undefined>(0);
+    const [currentUserId, setCurrentUserId] = useState<string>(emptyGuid);
+    const [currentStoreId, setCurrentStoreId] = useState<string | undefined>(emptyGuid);
     const [items, setItems] = useState<IItem[]>([]);
     const [itemName, setItemName] = useState<string>('');
     const [stores, setStores] = useState<IStore[]>([]);
     const [selectedStore, setSelectedStore] = useState<string>('none');
-    const [selectedStoreId, setSelectedStoreId] = useState<number>(0);
+    const [selectedStoreId, setSelectedStoreId] = useState<string>(emptyGuid);
     
     const userContext = useContext(UserContext);
     const propContext = useContext(PropContext);
@@ -48,36 +49,36 @@ const ItemAddComponent = ({ navigation }: Props) => {
 
     let errorMessage: string = '';
 
-    const renderStoresAndSetDefault = (store_id: number | undefined) => {
+    const renderStoresAndSetDefault = (store_id: string | undefined) => {
         storeService.getAllStores()
-        .then((response) => {
-            setStores(response.data);
-            if(!isUndefinedOrNull(store_id)){
-                setSelectedStoreId(Number(store_id));
-                setSelectedStore(getStoreNameById(response.data, Number(store_id)));
-            }
-        })
-        .catch((error: AxiosError) => {
-            console.error(error);
-            createErrorAlert(error.message);
-        });
+            .then((response) => {
+                setStores(response.data);
+                if(store_id !== undefined){
+                    setSelectedStoreId(store_id);
+                    setSelectedStore(getStoreNameById(response.data, store_id));
+                }
+            })
+            .catch((error: AxiosError) => {
+                console.error(error);
+                createErrorAlert(error.message);
+            });
     }
 
     const addItemAndRedirect = () => {
-        let itemToAdd: IItem = getDefaultItem();
+        let itemToAdd: Item = getDefaultItem();
         itemToAdd.name = itemName;
         if(itemToAdd.name != ""){
             if(!itemAlreadyExist(itemToAdd.name)){
-                itemToAdd.user_Id = currentUserId;
+                itemToAdd.userId = currentUserId;
                 itemToAdd.currentStoreId = selectedStoreId;
                 itemService.addItem(itemToAdd)
-                .then((response) => {
-                    redirectToHome(navigation);
-                })
-                .catch((error: AxiosError) => {
-                    console.error(error);
-                    createErrorAlert(error.message);
-                });
+                    .then((response) => {
+                        redirectToHome(navigation);
+                    })
+                    .catch((error: AxiosError) => {
+                        console.error(error);
+                        createErrorAlert(error.message);
+                    });
             }
             else{
                 errorMessage = "Item already exist.";
@@ -86,13 +87,13 @@ const ItemAddComponent = ({ navigation }: Props) => {
         }
     }
 
-    const renderAllItems = (user_id: number) => {
+    const renderAllItems = (user_id: string) => {
         itemService.getItemsForUser(user_id)
-        .then((response) => setItems(response.data))
-        .catch((error: AxiosError) => {
-            console.error(error);
-            createErrorAlert(error.message);
-        });
+            .then((response) => setItems(response.data))
+            .catch((error: AxiosError) => {
+                console.error(error);
+                createErrorAlert(error.message);
+            });
     }
 
     const itemAlreadyExist = (item_name: string): boolean => {

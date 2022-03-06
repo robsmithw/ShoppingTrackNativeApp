@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import IItem from "../models/item.model";
 
 type PropContextType = {
-    storeId: number | null,
-    setStoreId: React.Dispatch<React.SetStateAction<number | null>> | null,
+    storeId: string | null,
+    setStoreId: React.Dispatch<React.SetStateAction<string | null>> | null,
     item: IItem | null,
     setItem: React.Dispatch<React.SetStateAction<IItem | null>> | null,
 }
@@ -17,7 +17,7 @@ export const PropContext = React.createContext<PropContextType>({
 
 export const PropProvider: React.FC = ({children}) => {
 
-    const [storeId, setStoreId] = useState<number | null>(null);
+    const [storeId, setStoreId] = useState<string | null>(null);
     const [item, setItem] = useState<IItem | null>(null);
 
     return (

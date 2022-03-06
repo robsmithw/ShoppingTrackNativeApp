@@ -41,9 +41,6 @@ const styles = StyleSheet.create({
 
 const PriceViewComponent = ({ navigation }: Props) => {
 
-    const [currentUserId, setCurrentUserId] = useState<number>(0);
-    const [currentStoreId, setCurrentStoreId] = useState<number | undefined>(0);
-    const [currentItem, setCurrentItem] = useState<IItem>();
     const [data, setData] = useState<IPrice[]>([]);
     const [stores, setStores] = useState<IStore[]>([]);
 
@@ -56,10 +53,10 @@ const PriceViewComponent = ({ navigation }: Props) => {
     const Price = ({ price }: IPriceProps): JSX.Element => {
         return (
             <View style={styles.priceSection}>
-                { !isUndefinedOrNull(price.price) 
-                &&  price.price !== 0 ?
+                { !isUndefinedOrNull(price.currentPrice) 
+                &&  price.currentPrice !== 0 ?
                 <NumberFormat 
-                    value={price.price} 
+                    value={price.currentPrice} 
                     displayType={'text'} 
                     thousandSeparator={true} 
                     prefix={'$'} 
@@ -111,7 +108,7 @@ const PriceViewComponent = ({ navigation }: Props) => {
         );
     }
 
-    const renderAllPrices = (item_id: number | undefined) => {
+    const renderAllPrices = (item_id: string | undefined) => {
         if (item_id !== undefined){
             priceService.getAllPrices(item_id)
             .then((response) => {setData(response.data)})
@@ -140,11 +137,8 @@ const PriceViewComponent = ({ navigation }: Props) => {
             && userContext.userId !== null
             && propContext.item !== null)
         {
-            setCurrentStoreId(propContext.storeId);
-            setCurrentUserId(userContext.userId);
-            setCurrentItem(propContext.item);
             getStores();
-            renderAllPrices(propContext.item.itemId);
+            renderAllPrices(propContext.item.id);
         }
     }, []);
 
