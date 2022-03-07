@@ -15,6 +15,7 @@ import { ItemService } from '../services/item_service';
 import { UserContext } from '../contexts/user_context';
 import { PropContext } from '../contexts/prop_context';
 import { StoreService } from '../services/store_service';
+import Loading from '../components/loading';
 
 type Props = {
     navigation: ItemsScreenNavigationProp,
@@ -240,11 +241,11 @@ const ItemsComponent = ({ navigation }: Props) => {
         item.purchased = purchased;
         setItemToUpdate(item);
         itemService.updateItem(item)
-        .then((response) => /*updateList(json, purchased)*/{})
-        .catch((error) => {
-            console.error(error);
-            createErrorAlert(error.message);
-        });
+            .then((response) => /*updateList(json, purchased)*/{})
+            .catch((error) => {
+                console.error(error);
+                createErrorAlert(error.message);
+            });
     }
 
     const updatePreviousPrice = () => {
@@ -322,7 +323,7 @@ const ItemsComponent = ({ navigation }: Props) => {
             </View>
             
             {isLoading ? 
-            <Text>Loading...</Text> : 
+            <Loading /> : 
             <FlatList 
               data={itemsDisplayed}
               renderItem={({item}) =>  <Item item={item}></Item>}

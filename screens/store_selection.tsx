@@ -8,6 +8,7 @@ import { StoreService } from '../services/store_service';
 import { UserContext } from '../contexts/user_context';
 import { PropContext } from '../contexts/prop_context';
 import { AxiosError } from 'axios';
+import Loading from '../components/loading';
 
 type Props = {
     navigation: StoreSelectionScreenNavigationProp,
@@ -145,7 +146,7 @@ const StoreSelectionComponent = ({ navigation }: Props) => {
                 />
             </View>
             {isLoading ? 
-            <Text>Loading...</Text> : 
+            <Loading /> : 
             <FlatList 
                 numColumns={3}
                 data={data}

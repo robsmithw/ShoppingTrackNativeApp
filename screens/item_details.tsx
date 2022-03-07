@@ -13,6 +13,7 @@ import { ItemService } from '../services/item_service';
 import { AxiosError } from 'axios';
 import {UserContext} from '../contexts/user_context';
 import {PropContext} from '../contexts/prop_context';
+import Loading from '../components/loading';
 
 type Props = {
     navigation: ItemDetailsScreenNavigationProp,
@@ -37,6 +38,7 @@ const styles = StyleSheet.create({
 
 const ItemDetailsComponent = ({ navigation }: Props) => {
 
+    const [isLoading, setIsLoading] = useState(true);
     const [currentItem, setCurrentItem] = useState<IItem>();
     const [previousPrices, setPreviousPrices] = useState<IPrice[]>([]);
     const [nameFormatted, setNameFormatted] = useState<string>('');
@@ -106,24 +108,17 @@ const ItemDetailsComponent = ({ navigation }: Props) => {
         else{
             console.error("Item recieved was null.");
         }
-        
-        // NumberFormat can do this, just need to figure out how to link this up
-        // if(!this.shared.isUndefinedOrNull(resultToFormat.previous_Price)){
-        //     setPriceFormatted = '' + formatCurrency(resultToFormat.previous_Price,"en","$");
-        // }
-        // else{
-        //     setPriceFormatted = '';
-        // }
     }
 
     const getStores = () => {
         setStores([]);
         storeService.getAllStores()
-        .then((response) => setStores(response.data))
-        .catch((error: AxiosError) => {
-            console.error(error);
-            createErrorAlert(error.message);
-        });
+            .then((response) => setStores(response.data))
+            .catch((error: AxiosError) => {
+                console.error(error);
+                createErrorAlert(error.message);
+            })
+            .finally(() => setIsLoading(false));
     }
     
     const redirectToUpdateItem = () => {
@@ -158,13 +153,13 @@ const ItemDetailsComponent = ({ navigation }: Props) => {
                 },
                 { text: "OK", onPress: () => {
                         itemService.deleteItem(item)
-                        .then((_) => {
-                            redirectToHome(navigation);
-                        })
-                        .catch((error: AxiosError) => {
-                            console.error(error);
-                            createErrorAlert(error.message);
-                        });
+                            .then((_) => {
+                                redirectToHome(navigation);
+                            })
+                            .catch((error: AxiosError) => {
+                                console.error(error);
+                                createErrorAlert(error.message);
+                            });
                     }
                 }
             ],
@@ -185,36 +180,57 @@ const ItemDetailsComponent = ({ navigation }: Props) => {
 
     return (
         <View>
-            <Text>Item Details</Text>
-            <Text>{nameFormatted}</Text>
-            { !isUndefinedOrNull(currentItem?.previousPrice) 
-            &&  currentItem?.previousPrice !== 0 ?
-            <NumberFormat 
-                value={currentItem?.previousPrice} 
-                displayType={'text'} 
-                thousandSeparator={true} 
-                prefix={'$'} 
-                renderText={value => <Text>Previous Price: {value}</Text>}    
-            />
-            :
-            <Text>Previous Price: There was no previous price specified.</Text>
+            { isLoading ?
+            <Loading /> :
+            <View>
+                <Text>{nameFormatted}</Text>
+                { !isUndefinedOrNull(currentItem?.previousPrice) 
+                &&  currentItem?.previousPrice !== 0 ?
+                <NumberFormat 
+                    value={currentItem?.previousPrice} 
+                    displayType={'text'} 
+                    thousandSeparator={true} 
+                    prefix={'$'} 
+                    renderText={value => <Text>Previous Price: {value}</Text>}    
+                />
+                :
+                <Text>Previous Price: There was no previous price specified.</Text>
+                }
+                <Text>{formatString('previous_store', currentItem?.lastStoreId, stores)}</Text>
+                <Text>{formatString('current_store', currentItem?.currentStoreId, stores)}</Text>
+                { previousPrices.length > 0 ?
+                <Text>Additional Prices:</Text>
+                :
+                <Text>No Additional Prices</Text>
+                }
+                <FlatList 
+                    data={previousPrices}
+                    renderItem={({item}) =>  <Price price={item}></Price>}
+                    keyExtractor={(price, _) => price.id.toString()}
+                />
+                <StyledButton 
+                    styles={styles.navBtn} 
+                    title='Update Item' 
+                    onPress={() => redirectToUpdateItem()} 
+                />
+                <StyledButton 
+                    styles={styles.navBtn} 
+                    title='Delete Item' 
+                    onPress={ () => confirmAndDeleteItem()} 
+                />
+                <StyledButton 
+                    styles={styles.navBtn} 
+                    title='Add Another Price' 
+                    onPress={ () => redirectToAddPrice()} 
+                />
+                <StyledButton 
+                    styles={styles.navBtn} 
+                    title='View All Price' 
+                    onPress={ () => redirectToViewPrice()} 
+                    disabled={previousPrices.length <= 0} 
+                />
+            </View>
             }
-            <Text>{formatString('previous_store', currentItem?.lastStoreId, stores)}</Text>
-            <Text>{formatString('current_store', currentItem?.currentStoreId, stores)}</Text>
-            { previousPrices.length > 0 ?
-            <Text>Previous Prices:</Text>
-            :
-            <Text>No Previous Prices</Text>
-            }
-            <FlatList 
-                data={previousPrices}
-                renderItem={({item}) =>  <Price price={item}></Price>}
-                keyExtractor={(price, _) => price.id.toString()}
-            />
-            <StyledButton styles={styles.navBtn} title='Update Item' onPress={() => redirectToUpdateItem()} />
-            <StyledButton styles={styles.navBtn} title='Delete Item' onPress={ () => confirmAndDeleteItem()} />
-            <StyledButton styles={styles.navBtn} title='Add Another Price' onPress={ () => redirectToAddPrice()} />
-            <StyledButton styles={styles.navBtn} title='View All Price' onPress={ () => redirectToViewPrice()} disabled={previousPrices.length <= 0} />
         </View>
         
     );
