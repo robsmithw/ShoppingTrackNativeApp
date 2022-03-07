@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 import { ItemValue } from '@react-native-picker/picker/typings/Picker';
 import { Picker } from '@react-native-picker/picker';

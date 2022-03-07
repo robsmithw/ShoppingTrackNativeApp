@@ -1,14 +1,18 @@
-import React, { useState, useRef, useLayoutEffect } from 'react';
+import { AxiosError } from 'axios';
+import React, { useState, useRef, useContext, useMemo } from 'react';
 
 import { View, Text, StyleSheet } from "react-native";
 
 import { FloatingLabelInput } from 'react-native-floating-label-input';
+import { UserContext } from '../contexts/user_context';
 
 import { LoginScreenNavigationProp, LoginScreenRouteProp, redirectToSignUp, redirectToStoreSelection } from '../models/navigation.model';
-import { IUser, User } from '../models/user.model';
+import { ILoginResponse, User } from '../models/user.model';
+import { UserService } from '../services/user_service';
 
-import { login } from '../utilities/api';
-import { createErrorAlert, StyledButton } from '../utilities/utils';
+
+import { createErrorAlert } from '../utils/utils';
+import { StyledButton } from '../components/styled_button';
 
 type Props = {
     navigation: LoginScreenNavigationProp,
@@ -32,7 +36,6 @@ const styles = StyleSheet.create({
     loginBtn: {
         height: 50,
         borderRadius: 20,
-        //this background color for some reason makes it not square anymore
         backgroundColor: '#85bb65', 
         padding: 10,
         fontSize: 20,
@@ -53,6 +56,10 @@ const LoginComponent = ({ route, navigation }: Props) => {
     const [password, setPassword] = useState<string>('');
     const passwordInput = useRef<HTMLInputElement | null>(null);
 
+    const userContext = useContext(UserContext);
+
+    const userService = useMemo(() => new UserService(), []);
+
     const onSigninButtonPress = () => {
         if(username == "" || password == ""){
             if(username == ""){
@@ -66,18 +73,26 @@ const LoginComponent = ({ route, navigation }: Props) => {
         }
         let attemptedLogin: User = new User(username, password);
 
-        login(attemptedLogin)
-        .then((json: IUser) => redirectToStoreSelect(json))
-        .catch(error => setPassword(''));
+        userService.login(attemptedLogin)
+        .then((response) => {
+            if (userContext.setAccessToken !== null){
+                userContext.setAccessToken(response.data.accessToken);
+            }
+            if (userContext.setUserId !== null){
+                userContext.setUserId(response.data.userId);
+            }
+            redirectToStoreSelect(response.data)
+        })
+        .catch((error: AxiosError) => {console.error(error); setPassword(''); });
     }
 
     const onSignupTextPress = () => {
         redirectToSignUp(navigation);
     }
 
-    const redirectToStoreSelect = (user: IUser) => {
-        if (user != undefined){
-            redirectToStoreSelection(navigation, user.user_Id);
+    const redirectToStoreSelect = (loginResponse: ILoginResponse) => {
+        if (loginResponse != undefined){
+            redirectToStoreSelection(navigation);
         }
     }
 

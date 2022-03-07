@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet } from "react-native";
+import React, { useMemo, useState } from 'react';
+import { View, Text, StyleSheet } from "react-native";
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import { redirectToLogin, SignUpScreenNavigationProp, SignUpScreenRouteProp } from '../models/navigation.model';
-import { IUser, User } from '../models/user.model';
-import { login, register } from '../utilities/api';
-import Toast from 'react-native-simple-toast';
-import { createErrorAlert, StyledButton } from '../utilities/utils';
-import { TouchableHighlight } from 'react-native-gesture-handler';
+import { User } from '../models/user.model';
+import { createErrorAlert } from '../utils/utils';
+import { StyledButton } from '../components/styled_button';
+import { UserService } from '../services/user_service';
 
 type Props = {
     navigation: SignUpScreenNavigationProp,
@@ -26,7 +25,6 @@ const styles = StyleSheet.create({
     signUpBtn: {
         height: 50,
         borderRadius: 20,
-        //this background color for some reason makes it not square anymore
         backgroundColor: '#85bb65', 
         padding: 10,
         fontSize: 20,
@@ -56,6 +54,8 @@ const SignUpComponent = ({ route, navigation }: Props) => {
     const [password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const [email, setEmail] = useState<string>('');
+
+    const userService = useMemo(() => new UserService(), [])
 
     const onSignupButtonPress = () => {
 
@@ -88,8 +88,8 @@ const SignUpComponent = ({ route, navigation }: Props) => {
 
         let attemptedRegister: User = new User(username, password, email);
         
-        register(attemptedRegister)
-        .then((json: IUser) => redirectToLogin(navigation))
+        userService.register(attemptedRegister)
+        .then((response) => redirectToLogin(navigation))
         .catch(error => {
             setPassword('');
             createErrorAlert(error.message)

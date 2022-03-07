@@ -1,0 +1,163 @@
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { Text, SafeAreaView, View, FlatList, StyleSheet, Switch, TouchableWithoutFeedback, Image } from 'react-native';
+import IStore from '../models/store.model'
+import { redirectToHome, StoreSelectionScreenNavigationProp, StoreSelectionScreenRouteProp } from '../models/navigation.model';
+import Toast from 'react-native-simple-toast';
+import { createErrorAlert } from '../utils/utils';
+import { StoreService } from '../services/store_service';
+import { UserContext } from '../contexts/user_context';
+import { PropContext } from '../contexts/prop_context';
+import { AxiosError } from 'axios';
+import Loading from '../components/loading';
+
+type Props = {
+    navigation: StoreSelectionScreenNavigationProp,
+    route: StoreSelectionScreenRouteProp
+}
+
+interface IStoreProps {
+    store: IStore
+}
+
+const styles = StyleSheet.create({
+    title: {
+        fontSize: 20, 
+        fontWeight: 'bold',
+        color: '#000000',
+        textAlign: 'center'
+    },
+    switchRow: {
+        fontSize: 18,
+        flexDirection: 'row',
+        justifyContent: 'flex-end'
+    },
+    storesRow: {
+        paddingVertical: 10,
+        paddingHorizontal: 5,
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: 125,
+    },
+    stores: {
+        fontSize: 24,
+        textAlign: 'center',
+    },
+  });
+
+const StoreSelectionComponent = ({ navigation }: Props) => {
+
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [data, setData] = useState<IStore[]>([]);
+    const [isEnabled, setIsEnabled] = useState<boolean>(true);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+    const userContext = useContext(UserContext);
+    const propContext = useContext(PropContext);
+
+    const storeService = useMemo(() => new StoreService(userContext.accessToken), [userContext.accessToken]);
+
+    const Store = ({ store }: IStoreProps): JSX.Element => {
+        return (
+            <View style={styles.storesRow}>
+                
+                <TouchableWithoutFeedback onPress= {() => onStorePress(store)}>
+                    <View style={styles.storesRow}>
+                        <Image 
+                        source={requireStorePicture(store)}
+                        accessibilityLabel={store.name}
+                        />
+                        {/* {store.name.indexOf(' ') > -1 ?} */}
+                        <Text style={styles.stores}> {store.name} </Text>
+                    </View>
+                </TouchableWithoutFeedback>
+            </View>
+        )
+    }
+
+    const requireStorePicture = (store: IStore) => {
+        // This is done because you cannot use require with a dynamic variable
+        // So any store that has an image, should have a specific case in here
+        switch(store.name){
+            case "Walmart":
+                return require('../assets/walmart.png');
+            default:
+                return require('../assets/unknown.png');
+        }
+    }
+
+    const onStorePress = (store: IStore) => {
+        if (propContext.setStoreId !== null){
+            propContext.setStoreId(store.id);
+        }
+        redirectToHome(navigation);
+    }
+
+    const toggleSwitch = (newValue: boolean) => {
+        renderStoreList(!newValue);
+        setIsEnabled(newValue);
+    }
+
+    const renderStoreList = (withItems: boolean) => {
+        setIsLoading(true);
+        if (withItems) {
+            renderStoresWithItems();
+        }
+        else{
+            renderAllStores();
+        }
+    }
+
+    const renderStoresWithItems = () => {
+        if (currentUserId === null) return;
+
+        storeService.getStoresWithItemsByUser(currentUserId)
+            .then((response) => setData(response.data))
+            .catch((error) => {
+                console.error(error);
+                createErrorAlert(error);
+            })
+            .finally(() => setIsLoading(false));
+    }
+
+    const renderAllStores = () => {
+        storeService.getAllStores()
+        .then((response) => setData(response.data))
+        .catch((error: AxiosError) => {
+            console.error(error.request);
+            createErrorAlert(error.message);
+        })
+        .finally(() => setIsLoading(false));
+    }
+
+    useEffect( () => {
+        Toast.show('Successfully logged in.')
+        setCurrentUserId(userContext.userId);
+        renderStoreList(!isEnabled);
+    }, []);
+
+    return (
+        <SafeAreaView style={{flex:1}}>
+            <Text style={styles.title}>Select a Store</Text>
+            <View style={styles.switchRow}>
+                <Text>Show all Stores?</Text>
+                <Switch 
+                    onValueChange={toggleSwitch}
+                    value={isEnabled}
+                />
+            </View>
+            {isLoading ? 
+            <Loading /> : 
+            <FlatList 
+                numColumns={3}
+                data={data}
+                renderItem={({item}) =>  <Store store={item}></Store>}
+                keyExtractor={(item, index) => item.id.toString()}
+           />
+            }
+            
+        </SafeAreaView>
+    );
+
+};
+
+export default StoreSelectionComponent;

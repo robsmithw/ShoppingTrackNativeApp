@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableWithoutFeedback, Image, Alert } from "react-native";
-import { FloatingLabelInput } from 'react-native-floating-label-input';
 import NumberFormat from 'react-number-format';
+import Loading from '../components/loading';
+import { PropContext } from '../contexts/prop_context';
+import { UserContext } from '../contexts/user_context';
 import IItem from '../models/item.model';
 import { PriceViewScreenNavigationProp, PriceViewScreenRouteProp } from '../models/navigation.model';
 import { IPrice } from '../models/price.model';
 import IStore from '../models/store.model';
-import { User } from '../models/user.model';
-import { deletePrice, getAllPrices, getAllStores } from '../utilities/api';
-import { createErrorAlert, formatString, isUndefinedOrNull } from '../utilities/utils';
+import { PriceService } from '../services/price_service';
+import { StoreService } from '../services/store_service';
+import { createErrorAlert, formatString, isUndefinedOrNull } from '../utils/utils';
 
 type Props = {
     navigation: PriceViewScreenNavigationProp,
@@ -38,21 +40,25 @@ const styles = StyleSheet.create({
     }
 });
 
-const PriceViewComponent = ({ route, navigation }: Props) => {
+const PriceViewComponent = ({ navigation }: Props) => {
 
-    const [currentUserId, setCurrentUserId] = useState<number>(0);
-    const [currentStoreId, setCurrentStoreId] = useState<number | undefined>(0);
-    const [currentItem, setCurrentItem] = useState<IItem>();
+    const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState<IPrice[]>([]);
     const [stores, setStores] = useState<IStore[]>([]);
+
+    const userContext = useContext(UserContext);
+    const propContext = useContext(PropContext);
+
+    const storeService = useMemo(() => new StoreService(userContext.accessToken), [userContext.accessToken]);
+    const priceService = useMemo(() => new PriceService(userContext.accessToken), [userContext.accessToken]);
 
     const Price = ({ price }: IPriceProps): JSX.Element => {
         return (
             <View style={styles.priceSection}>
-                { !isUndefinedOrNull(price.price) 
-                &&  price.price !== 0 ?
+                { !isUndefinedOrNull(price.currentPrice) 
+                &&  price.currentPrice !== 0 ?
                 <NumberFormat 
-                    value={price.price} 
+                    value={price.currentPrice} 
                     displayType={'text'} 
                     thousandSeparator={true} 
                     prefix={'$'} 
@@ -87,8 +93,8 @@ const PriceViewComponent = ({ route, navigation }: Props) => {
                     style: "cancel"
                 },
                 { text: "OK", onPress: () => {
-                        deletePrice(price)
-                        .then((json: IPrice) => {
+                        priceService.deletePrice(price.id)
+                        .then((response) => {
                             // TODO: Currently this isn't working
                             // Details also needs to be updated (not working)
                             setData(data.filter(priceData => priceData.id != price.id));
@@ -104,14 +110,15 @@ const PriceViewComponent = ({ route, navigation }: Props) => {
         );
     }
 
-    const renderAllPrices = (item_id: number | undefined) => {
-        if (!isUndefinedOrNull(item_id)){
-            getAllPrices(item_id)
-            .then((json: IPrice[]) => {setData(json)})
-            .catch((error) => {
-                console.error(error);
-                createErrorAlert(error);
-            });
+    const renderAllPrices = (item_id: string | undefined) => {
+        if (item_id !== undefined){
+            priceService.getAllPrices(item_id)
+                .then((response) => {setData(response.data)})
+                .catch((error) => {
+                    console.error(error);
+                    createErrorAlert(error);
+                })
+                .finally(() => setIsLoading(false));
         }
         else{
             console.error("Item id recieved was null.");
@@ -120,29 +127,34 @@ const PriceViewComponent = ({ route, navigation }: Props) => {
 
     const getStores = () => {
         setStores([]);
-        getAllStores()
-        .then((json: IStore[]) => setStores(json))
-        .catch((error) => {
-            console.error(error);
-            createErrorAlert(error);
-        });
+        storeService.getAllStores()
+            .then((response) => setStores(response.data))
+            .catch((error) => {
+                console.error(error);
+                createErrorAlert(error);
+            });
     }
 
     useEffect( () => {
-        setCurrentStoreId(route.params.store_id);
-        setCurrentUserId(route.params.user_id);
-        setCurrentItem(route.params.item);
-        getStores();
-        renderAllPrices(route.params.item?.itemId);
+        if (propContext.storeId !== null 
+            && userContext.userId !== null
+            && propContext.item !== null)
+        {
+            getStores();
+            renderAllPrices(propContext.item.id);
+        }
     }, []);
 
     return (
         <View>
+            {isLoading ?
+            <Loading /> :
             <FlatList 
               data={data}
               renderItem={({item}) =>  <Price price={item}></Price>}
-              keyExtractor={(item, index) => item.id.toString()}
+              keyExtractor={(item, _) => item.id.toString()}
             />
+            }
         </View>
     );
 

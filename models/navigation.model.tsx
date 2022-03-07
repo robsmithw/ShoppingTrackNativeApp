@@ -6,13 +6,13 @@ import { RouteProp } from '@react-navigation/native';
 export type StackParamList = {
     Login: undefined;
     SignUp: undefined;
-    StoreSelection: { user_id: number };
-    Items: { user_id: number, store_id: number | undefined };
-    ItemDetails: { user_id: number, store_id: number | undefined, item: IItem | undefined };
-    ItemUpdate: {user_id: number, store_id: number | undefined, item: IItem | undefined };
-    ItemAdd: {user_id: number, store_id: number | undefined };
-    PriceAdd: {user_id: number, store_id: number | undefined, item: IItem | undefined };
-    PriceView: {user_id: number, store_id: number | undefined, item: IItem | undefined };
+    StoreSelection: undefined;
+    Items: undefined;
+    ItemDetails: undefined; 
+    ItemUpdate: undefined;
+    ItemAdd: undefined;
+    PriceAdd: undefined;
+    PriceView: undefined;
   };
 
 // Login Props
@@ -60,30 +60,30 @@ export const redirectToSignUp = (navigation: any) => {
   navigation.navigate('SignUp', undefined);
 }
 
-export const redirectToStoreSelection = (navigation: any, user_id: number) => {
-  navigation.navigate('StoreSelection', { user_id: user_id });
+export const redirectToStoreSelection = (navigation: any) => {
+  navigation.navigate('StoreSelection', undefined);
 }
 
-export const redirectToHome = (navigation: any, user_id: number, store_id: number | undefined) => {
-  navigation.navigate('Items', { user_id: user_id, store_id: store_id });
+export const redirectToHome = (navigation: any) => {
+  navigation.navigate('Items', undefined);
 }
 
-export const redirectToItemDetails = (navigation: any, user_id: number, store_id: number | undefined, item: IItem) => {
-  navigation.navigate('ItemDetails', { user_id: user_id, store_id: store_id, item: item });
+export const redirectToItemDetails = (navigation: any) => {
+  navigation.navigate('ItemDetails', undefined);
 }
 
-export const redirectToItemUpdate = (navigation: any, user_id: number, store_id: number | undefined, item: IItem | undefined) => {
-  navigation.navigate('ItemUpdate', { user_id: user_id, store_id: store_id, item: item });
+export const redirectToItemUpdate = (navigation: any) => {
+  navigation.navigate('ItemUpdate', undefined);
 }
 
-export const redirectToItemAdd = (navigation: any, user_id: number, store_id: number | undefined) => {
-  navigation.navigate('ItemAdd', { user_id: user_id, store_id: store_id });
+export const redirectToItemAdd = (navigation: any) => {
+  navigation.navigate('ItemAdd', undefined);
 }
 
-export const redirectToPriceAdd = (navigation: any, user_id: number, store_id: number | undefined, item: IItem | undefined) => {
-  navigation.navigate('PriceAdd', { user_id: user_id, store_id: store_id, item: item });
+export const redirectToPriceAdd = (navigation: any) => {
+  navigation.navigate('PriceAdd', undefined);
 }
 
-export const redirectToPriceView = (navigation: any, user_id: number, store_id: number | undefined, item: IItem | undefined) => {
-  navigation.navigate('PriceView', { user_id: user_id, store_id: store_id, item: item });
+export const redirectToPriceView = (navigation: any) => {
+  navigation.navigate('PriceView', undefined);
 }

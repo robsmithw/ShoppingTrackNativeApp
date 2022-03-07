@@ -1,0 +1,115 @@
+import { Alert } from "react-native";
+
+import IStore from "../models/store.model";
+
+import { NIL as emptyGuid } from "uuid";
+
+
+export function isUndefinedOrNull<T>(value: T): boolean {
+    if(value == null){
+        return true;
+    }
+
+    if(value === null){
+        return true;
+    }
+
+    if(typeof value === 'undefined'){
+        return true;
+    }
+
+    return false;
+}
+
+export const getStoreNameById = (stores: IStore[], store_id: string): string => {
+    //default in case of null, undefined, or no match
+    let store_name: string = "none";
+
+    if(!isUndefinedOrNull(stores)){
+        stores.forEach(
+            (store: IStore) => {
+                if (store.id == store_id){
+                    store_name = store.name;
+                }
+            }
+        )
+    }
+
+    return store_name;
+}
+
+export const getStoreIdByName = (stores: IStore[], store_name: string): string => {
+    let store_id: string = emptyGuid;
+
+    if(!isUndefinedOrNull(stores)){
+        stores.forEach(
+            (store: IStore) => {
+                if (store.name == store_name){
+                    store_id = store.id;
+                }
+            }
+        )
+    }
+
+    return store_id;
+}
+
+export const createErrorAlert = (message: string) => {
+    Alert.alert(
+        "Error occured",
+        message,
+        [
+          { text: "OK" }
+        ],
+        { cancelable: false }
+    );
+}
+
+export const formatString = (type: string, toFormat: any, stores?: IStore[]): string => {
+    let stringToDisplay: string = "";
+    
+    if(type == 'store'){
+        if(isUndefinedOrNull(toFormat) || Number(toFormat) == 0){
+            stringToDisplay = `Store: No store specified.`;
+        }
+        else{
+            if (stores != undefined){
+                stringToDisplay = `Store: ${getStoreNameById(stores, toFormat)}`;
+            }
+            else{
+                stringToDisplay = `Store: Error displaying store.`;
+            }
+        }
+    }
+    if(type == 'previous_store' || type == 'current_store'){
+        let store_type: string = "Previous Store";
+        if (type == 'current_store'){
+            store_type = "Current Store";
+        }
+        if(isUndefinedOrNull(toFormat) || Number(toFormat) == 0){
+            stringToDisplay = `${store_type}: No store specified.`;
+        }
+        else{
+            if (stores != undefined){
+                stringToDisplay = `${store_type}: ${getStoreNameById(stores, toFormat)}`;
+            }
+            else{
+                stringToDisplay = `${store_type}: Error displaying store.`;
+            }
+        }
+    }
+    if(type == 'date'){
+        stringToDisplay = "Date of Price: " + new Date(toFormat.toString());
+    }
+    
+    return stringToDisplay;
+}
+
+export const convertPriceStringToNumber = (price_string: string): number => {
+    return Number(price_string.replace(',', ''));
+}
+
+export interface IStorePickListProps {
+    value: string,
+    stores: IStore[]
+}

@@ -1,0 +1,26 @@
+name: Github Actions CI
+
+on: [pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/yarn
+      - run: yarn lint
+
+  lint_code_formatter:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./.github/actions/yarn
+    - run: yarn code-formatter-check
+    
+  # lint_types:
+  #   runs-on: ubuntu-latest
+  #   container: node
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - uses: ./.github/actions/yarn
+  #   - run: yarn types-check

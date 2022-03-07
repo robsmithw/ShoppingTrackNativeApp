@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, Platform } from "react-native";
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { View, StyleSheet, TouchableWithoutFeedback, Image } from "react-native";
 import { Picker } from '@react-native-picker/picker';
-// import DatePicker from 'react-native-date-picker'
 import DateTimePicker, { Event } from '@react-native-community/datetimepicker';
 import { FloatingLabelInput } from 'react-native-floating-label-input';
 import { PriceAddScreenNavigationProp, PriceAddScreenRouteProp } from '../models/navigation.model';
-import { User } from '../models/user.model';
-import { createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull, StyledButton } from '../utilities/utils';
+import { createErrorAlert, getStoreIdByName, getStoreNameById, isUndefinedOrNull } from '../utils/utils';
 import IStore from '../models/store.model';
-import { getAllStores } from '../utilities/api';
+import { StyledButton } from '../components/styled_button';
 import IItem from '../models/item.model';
+import { UserContext } from '../contexts/user_context';
+import { PropContext } from '../contexts/prop_context';
+import { StoreService } from '../services/store_service';
+import { AxiosError } from 'axios';
 
 type Mode = 'date' | 'time' | 'datetime' | 'countdown';
 
@@ -26,18 +28,19 @@ const styles = StyleSheet.create({
     }
 });
 
-const PriceAddComponent = ({ route, navigation }: Props) => {
+const PriceAddComponent = ({ navigation }: Props) => {
 
-    const [currentUserId, setCurrentUserId] = useState<number>(0);
-    const [currentStoreId, setCurrentStoreId] = useState<number | undefined>(0);
-    const [currentItem, setCurrentItem] = useState<IItem>();
     const [stores, setStores] = useState<IStore[]>([]);
     const [selectedStore, setSelectedStore] = useState<string>('none');
-    const [selectedStoreId, setSelectedStoreId] = useState<number>(0);
     const [newPrice, setNewPrice] = useState<string>('');
     const [dateOfPrice, setDateOfPrice] = useState<Date>(new Date);
     const [mode, setMode] = useState<Mode>('date');
     const [show, setShow] = useState<Boolean>(false);
+
+    const userContext = useContext(UserContext);
+    const propContext = useContext(PropContext);
+
+    const storeService = useMemo(() => new StoreService(userContext.accessToken), [userContext.accessToken]);
 
     const StorePicklist = (): JSX.Element => {
         return (
@@ -46,7 +49,6 @@ const PriceAddComponent = ({ route, navigation }: Props) => {
                 style={{height: 50, width: 150}}
                 onValueChange={(itemValue, itemIndex) => {
                     setSelectedStore(itemValue.toString());
-                    setSelectedStoreId(getStoreIdByName(stores, itemValue.toString()));
                 }}
             >
                 <Picker.Item label='None' value='none' />
@@ -59,18 +61,18 @@ const PriceAddComponent = ({ route, navigation }: Props) => {
         );
     }
 
-    const renderStoresAndSetDefault = (store_id: number | undefined) => {
-        getAllStores()
-        .then((json: IStore[]) => {
+    const renderStoresAndSetDefault = (store_id: string | undefined) => {
+        storeService.getAllStores()
+        .then((response) => {
+            const json = response.data;
             setStores(json);
-            if(!isUndefinedOrNull(store_id)){
-                setSelectedStoreId(Number(store_id));
-                setSelectedStore(getStoreNameById(json, Number(store_id)));
+            if(store_id !== undefined){
+                setSelectedStore(getStoreNameById(json, store_id));
             }
         })
-        .catch((error) => {
+        .catch((error: AxiosError) => {
             console.error(error);
-            createErrorAlert(error);
+            createErrorAlert(error.message);
         });
     }
 
@@ -93,13 +95,26 @@ const PriceAddComponent = ({ route, navigation }: Props) => {
         showMode('time');
     };
 
+    const calenderDisplay = (): JSX.Element => {
+        return (
+            <TouchableWithoutFeedback onPress={() => setShow(true)}>
+                <Image 
+                    source={require('../assets/add.png')}
+                    accessibilityLabel={'Add Item'}
+                />
+            </TouchableWithoutFeedback>
+        )
+    }
+
     //Number(newPrice.replace(',', ''))
 
     useEffect( () => {
-        setCurrentStoreId(route.params.store_id);
-        setCurrentUserId(route.params.user_id);
-        setCurrentItem(route.params.item);
-        renderStoresAndSetDefault(route.params.store_id);
+        if (propContext.storeId !== null 
+            && userContext.userId !== null
+            && propContext.item !== null)
+        {
+            renderStoresAndSetDefault(propContext.storeId);
+        }
     }, []);
 
     return (
@@ -111,7 +126,7 @@ const PriceAddComponent = ({ route, navigation }: Props) => {
             Most recent price?
             */}
             <FloatingLabelInput
-                label={'Store with Price'}
+                label={'Select a store'}
                 value={selectedStore}
                 editable={false}
             />
@@ -124,13 +139,21 @@ const PriceAddComponent = ({ route, navigation }: Props) => {
                 keyboardType="numeric"
                 onChangeText={(val: string) => setNewPrice(val)}
             />
-            <DateTimePicker
-            testID="dateTimePicker"
-            value={dateOfPrice}
-            mode={mode}
-            display="default"
-            onChange={onChange}
+            <FloatingLabelInput
+                label={'Select the date of the price'}
+                value={dateOfPrice.toDateString()}
+                editable={false}
+                rightComponent={calenderDisplay()}
             />
+            {
+                show &&
+                <DateTimePicker
+                    value={dateOfPrice}
+                    mode={mode}
+                    display="default"
+                    onChange={onChange}
+                />
+            }
 
             <StyledButton styles={styles.navBtn} title='Add Price' onPress={ () => console.log("sumin")} />
             <StyledButton styles={styles.navBtn} title='Cancel' onPress={ () => console.log("sumin")} />

@@ -1,0 +1,78 @@
+#image: node
+
+#stages:
+#  - lint
+  # - test
+  # - publish
+
+  #cache:
+  #key: ${CI_COMMIT_REF_SLUG}
+  #paths:
+  #  - node_modules/
+
+  #variables:
+  #DOCKER_DRIVER: overlay2
+
+  #before_script:
+  #- yarn generate-dotenv
+  #- yarn
+
+  #lint:
+  #stage: lint
+  #only:
+  #  - merge_requests
+  #script:
+  #  - yarn lint
+
+  #lint:code-formatter:
+  #stage: lint
+  #only:
+  #  - merge_requests
+  #script:
+  #  - yarn code-formatter-check
+
+#lint:types:
+#  stage: lint
+#  only:
+#    - merge_requests
+#  script:
+#    - yarn types-check
+
+#tests:unit:
+#  stage: test
+#  only:
+#    - merge_requests
+#  except:
+#    variables:
+#      - $CI_COMMIT_REF_NAME =~ /^master/
+#  script:
+#    - yarn test
+
+# tests:coverage:
+#   stage: test
+#   only:
+#     - master
+#   script:
+#     - yarn coverage --silent
+#   coverage: /All\sfiles.*?\s+(\d+.\d+)/
+
+# publish:android:package:
+#   stage: publish
+#   image: reactnativecommunity/react-native-android
+#   only:
+#     - /^release/.*$/
+#   script:
+#     - echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p
+#     - cd android
+#     - base64 -d $ANDROID_KEYSTORE > app/stegappasaurus.keystore
+#     - export VERSION=$(cat app.json | jq -r .version)
+#     - cat $PLAY_STORE_JSON > app/play-store.json
+#     - cat $FIREBASE_GOOGLE_SERVICES_JSON > app/google-services.json
+#     - yarn generate-licenses
+#     - yarn generate-gradle-properties
+#     - yarn publish-package --no-daemon
+#   artifacts:
+#     paths:
+#       - ./android/app/build/
+#       - ./android/app/src/main/assets/
+
