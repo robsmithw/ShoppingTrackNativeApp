@@ -13,6 +13,7 @@ import { convertPriceStringToNumber, createErrorAlert, getStoreIdByName, getStor
 import { StorePickList } from '../components/store_pick_list';
 import { StyledButton } from '../components/styled_button';
 import { NIL as emptyGuid } from "uuid";
+import Loading from '../components/loading';
 
 type Props = {
     navigation: ItemUpdateScreenNavigationProp,
@@ -34,6 +35,7 @@ const styles = StyleSheet.create({
 
 const ItemUpdateComponent = ({ navigation }: Props) => {
 
+    const [isLoading, setIsLoading] = useState(true);
     const [currentItem, setCurrentItem] = useState<IItem>();
     const [stores, setStores] = useState<IStore[]>([]);
     const [newItemName, setNewItemName] = useState<string>('');
@@ -50,18 +52,19 @@ const ItemUpdateComponent = ({ navigation }: Props) => {
     const getStores = (store_id: string) => {
         setStores([]);
         storeService.getAllStores()
-        .then((response) => {
-            const json = response.data;
-            setStores(json);
-            if(!isUndefinedOrNull(store_id)){
-                setSelectedStoreId(store_id);
-                setSelectedStore(getStoreNameById(json, store_id));
-            }    
-        })
-        .catch((error: AxiosError) => {
-            console.error(error);
-            createErrorAlert(error.message);
-        });
+            .then((response) => {
+                const json = response.data;
+                setStores(json);
+                if(!isUndefinedOrNull(store_id)){
+                    setSelectedStoreId(store_id);
+                    setSelectedStore(getStoreNameById(json, store_id));
+                }    
+            })
+            .catch((error: AxiosError) => {
+                console.error(error);
+                createErrorAlert(error.message);
+            })
+            .finally(() => setIsLoading(false));
     }
 
     const constructAndUpdateItem = () => {
@@ -71,14 +74,14 @@ const ItemUpdateComponent = ({ navigation }: Props) => {
             item.previousPrice = convertPriceStringToNumber(newPreviousPrice);
             item.currentStoreId = selectedStoreId;
             itemService.updateItem(item)
-            .then((response) => {
-                setCurrentItem(response.data);
-                redirectToHome(navigation);
-            })
-            .catch((error: AxiosError) => {
-                console.error(error);
-                createErrorAlert(error.message);
-            });
+                .then((response) => {
+                    setCurrentItem(response.data);
+                    redirectToHome(navigation);
+                })
+                .catch((error: AxiosError) => {
+                    console.error(error);
+                    createErrorAlert(error.message);
+                });
         }
     }
     
@@ -97,37 +100,42 @@ const ItemUpdateComponent = ({ navigation }: Props) => {
 
     return (
         <View>
-            <FloatingLabelInput 
-               label={'Item Name'}
-               value={newItemName}
-               onChangeText={(val: string) => setNewItemName(val)} 
-            />
-            <FloatingLabelInput
-                label={'Price Paid'}
-                value={newPreviousPrice}
-                maskType="currency"
-                currencyDivider="," 
-                keyboardType="numeric"
-                onChangeText={(val: string) => setNewPreviousPrice(val)}
-            />
-            <FloatingLabelInput
-                label={'Store with Price'}
-                value={selectedStore}
-                editable={false}
-            />
-            <StorePickList 
-                stores={stores}
-                selectedStore={selectedStore}
-                onStoreChanged={(itemValue, _) => {
-                    setSelectedStore(itemValue.toString());
-                    setSelectedStoreId(getStoreIdByName(stores, itemValue.toString()));
-                }}
-            />
-            <StyledButton 
-                styles={styles.btn}
-                title={"Update Item"}
-                onPress={() => constructAndUpdateItem()}
-            />
+            { isLoading ?
+            <Loading /> :
+            <View>
+                <FloatingLabelInput 
+                label={'Item Name'}
+                value={newItemName}
+                onChangeText={(val: string) => setNewItemName(val)} 
+                />
+                <FloatingLabelInput
+                    label={'Price Paid'}
+                    value={newPreviousPrice}
+                    maskType="currency"
+                    currencyDivider="," 
+                    keyboardType="numeric"
+                    onChangeText={(val: string) => setNewPreviousPrice(val)}
+                />
+                <FloatingLabelInput
+                    label={'Store with Price'}
+                    value={selectedStore}
+                    editable={false}
+                />
+                <StorePickList 
+                    stores={stores}
+                    selectedStore={selectedStore}
+                    onStoreChanged={(itemValue, _) => {
+                        setSelectedStore(itemValue.toString());
+                        setSelectedStoreId(getStoreIdByName(stores, itemValue.toString()));
+                    }}
+                />
+                <StyledButton 
+                    styles={styles.btn}
+                    title={"Update Item"}
+                    onPress={() => constructAndUpdateItem()}
+                />
+            </View>
+            }
         </View>
     );
 

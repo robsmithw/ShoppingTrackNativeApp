@@ -13,6 +13,7 @@ import { UserContext } from '../contexts/user_context';
 import { PropContext } from '../contexts/prop_context';
 import { AxiosError } from 'axios';
 import { NIL as emptyGuid } from "uuid";
+import Loading from '../components/loading';
 
 const styles = StyleSheet.create({
     btn: {
@@ -61,7 +62,8 @@ const ItemAddComponent = ({ navigation }: Props) => {
             .catch((error: AxiosError) => {
                 console.error(error);
                 createErrorAlert(error.message);
-            });
+            })
+            .finally(() => setIsLoading(false));
     }
 
     const addItemAndRedirect = () => {
@@ -87,7 +89,7 @@ const ItemAddComponent = ({ navigation }: Props) => {
         }
     }
 
-    const renderAllItems = (user_id: string) => {
+    const getAllItems = (user_id: string) => {
         itemService.getItemsForUser(user_id)
             .then((response) => setItems(response.data))
             .catch((error: AxiosError) => {
@@ -114,36 +116,41 @@ const ItemAddComponent = ({ navigation }: Props) => {
             setCurrentStoreId(propContext.storeId);
             setCurrentUserId(userContext.userId);
             renderStoresAndSetDefault(propContext.storeId);
-            renderAllItems(userContext.userId);
+            getAllItems(userContext.userId);
         }
     }, []);
 
     return (
         <View>
-            <FloatingLabelInput
-                label={'Item Name'}
-                value={itemName}
-                onChangeText={(val: string) => setItemName(val)}
-            />
+            {isLoading ? 
+            <Loading /> :
+            <View>
+                <FloatingLabelInput
+                    label={'Item Name'}
+                    value={itemName}
+                    onChangeText={(val: string) => setItemName(val)}
+                />
 
-            <FloatingLabelInput
-                label={'Store with Price'}
-                value={selectedStore}
-                editable={false}
-            />
-            <StorePickList 
-                stores={stores}
-                selectedStore={selectedStore}
-                onStoreChanged={(itemValue, _) => {
-                    setSelectedStore(itemValue.toString());
-                    setSelectedStoreId(getStoreIdByName(stores, itemValue.toString()));
-                }}
-            />
-            <StyledButton 
-                styles={styles.btn}
-                title="Add Item"
-                onPress={() => addItemAndRedirect()  } 
-            />
+                <FloatingLabelInput
+                    label={'Store with Price'}
+                    value={selectedStore}
+                    editable={false}
+                />
+                <StorePickList 
+                    stores={stores}
+                    selectedStore={selectedStore}
+                    onStoreChanged={(itemValue, _) => {
+                        setSelectedStore(itemValue.toString());
+                        setSelectedStoreId(getStoreIdByName(stores, itemValue.toString()));
+                    }}
+                />
+                <StyledButton 
+                    styles={styles.btn}
+                    title="Add Item"
+                    onPress={() => addItemAndRedirect()  } 
+                />
+            </View>
+            }
         </View>
     );
 

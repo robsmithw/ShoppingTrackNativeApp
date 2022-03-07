@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableWithoutFeedback, Image, Alert } from "react-native";
 import NumberFormat from 'react-number-format';
+import Loading from '../components/loading';
 import { PropContext } from '../contexts/prop_context';
 import { UserContext } from '../contexts/user_context';
 import IItem from '../models/item.model';
@@ -41,6 +42,7 @@ const styles = StyleSheet.create({
 
 const PriceViewComponent = ({ navigation }: Props) => {
 
+    const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState<IPrice[]>([]);
     const [stores, setStores] = useState<IStore[]>([]);
 
@@ -111,11 +113,12 @@ const PriceViewComponent = ({ navigation }: Props) => {
     const renderAllPrices = (item_id: string | undefined) => {
         if (item_id !== undefined){
             priceService.getAllPrices(item_id)
-            .then((response) => {setData(response.data)})
-            .catch((error) => {
-                console.error(error);
-                createErrorAlert(error);
-            });
+                .then((response) => {setData(response.data)})
+                .catch((error) => {
+                    console.error(error);
+                    createErrorAlert(error);
+                })
+                .finally(() => setIsLoading(false));
         }
         else{
             console.error("Item id recieved was null.");
@@ -125,11 +128,11 @@ const PriceViewComponent = ({ navigation }: Props) => {
     const getStores = () => {
         setStores([]);
         storeService.getAllStores()
-        .then((response) => setStores(response.data))
-        .catch((error) => {
-            console.error(error);
-            createErrorAlert(error);
-        });
+            .then((response) => setStores(response.data))
+            .catch((error) => {
+                console.error(error);
+                createErrorAlert(error);
+            });
     }
 
     useEffect( () => {
@@ -144,11 +147,14 @@ const PriceViewComponent = ({ navigation }: Props) => {
 
     return (
         <View>
+            {isLoading ?
+            <Loading /> :
             <FlatList 
               data={data}
               renderItem={({item}) =>  <Price price={item}></Price>}
               keyExtractor={(item, _) => item.id.toString()}
             />
+            }
         </View>
     );
 
